@@ -1,0 +1,54 @@
+{
+  "_name_or_path": "xvla",
+  "model_type": "xvla",
+  "architectures": ["XVLA"],
+  "auto_map": {
+    "AutoConfig": "configuration_xvla.XVLAConfig",
+    "AutoModel": "modeling_xvla.XVLA"
+  },
+
+  "vlm_backbone_type": "qwen3_vl",
+  "qwen3_pretrained": "Qwen/Qwen3-VL-2B-Instruct",
+  "qwen3_torch_dtype": "bfloat16",
+  "qwen3_use_flash_attn": true,
+
+  "vlm_use_multi_layer": true,
+  "vlm_multi_layer_indices": [-4, -3, -2, -1],
+
+  "action_mode": "ee6d",
+  "use_proprio": true,
+  "num_actions": 30,
+  "num_views": 2,
+  "hidden_size": 1024,
+  "depth": 24,
+  "num_heads": 16,
+  "mlp_ratio": 4.0,
+  "num_domains": 30,
+  "len_soft_prompts": 32,
+  "dim_time": 32,
+  "max_len_seq": 1024,
+  "use_hetero_proj": false,
+  "use_multilayer_proj": true,
+  "proj_num_layers": 2,
+  "proj_hidden_size": 1536,
+  "proj_dropout": 0.1,
+  "use_soft_prompt": false,
+  "use_cot_training": true,
+  "cot_only_pretrain": true,
+  "cot_loss_weight": 1.0,
+  "cot_max_length": 768,
+  "cot_coord_scale": 1000,
+  "cot_gripper_future_steps": 5,
+  "cot_detector_priority": ["seed_vl", "dino_x"],
+  "num_diffusion_samples": 4,
+  "use_interaction_augmentation": true,
+  "interaction_aug_ratio": 0.5,
+  "interaction_modes": {
+    "none": 0.40,
+    "pick_box": 0.20,
+    "place_box": 0.12,
+    "pick_and_place": 0.12,
+    "affordance_2d": 0.10,
+    "gripper_path_2d": 0.06
+  }
+}

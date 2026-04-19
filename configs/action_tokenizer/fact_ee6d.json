@@ -1,0 +1,49 @@
+{
+  "_comment": "FACT Action Tokenizer Configuration for ee6d action space",
+  
+  "model": {
+    "action_dim": 20,
+    "num_actions": 30,
+    "latent_dim": 256,
+    "num_latent_tokens": 8,
+    "codebook_size": 1024,
+    "encoder_layers": 4,
+    "decoder_layers": 6,
+    "num_heads": 8,
+    "mlp_ratio": 4.0,
+    "commitment_cost": 0.25,
+    "dropout": 0.0
+  },
+  
+  "data": {
+    "action_mode": "ee6d",
+    "control_mode": "abs",
+    "batch_size": 32,
+    "num_workers": 4
+  },
+  
+  "training": {
+    "learning_rate": 0.0003,
+    "weight_decay": 0.01,
+    "betas": [0.9, 0.999],
+    "max_grad_norm": 1.0,
+    "iters": 100000,
+    "warmup_steps": 1000
+  },
+  
+  "logging": {
+    "save_interval": 5000,
+    "log_interval": 100,
+    "eval_interval": 1000,
+    "eval_batches": 50,
+    "wandb_project": "FACT-ActionTokenizer"
+  },
+  
+  "system": {
+    "seed": 42,
+    "mixed_precision": "bf16",
+    "grad_accum": 1
+  }
+}
+
+

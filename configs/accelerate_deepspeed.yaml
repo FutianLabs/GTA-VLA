@@ -1,0 +1,11 @@
+compute_environment: LOCAL_MACHINE
+deepspeed_config:
+  deepspeed_config_file: configs/deepspeed_zero2.json
+  zero3_init_flag: false
+distributed_type: DEEPSPEED
+main_training_function: main
+num_machines: 1
+machine_rank: 0
+main_process_ip: null
+main_process_port: 29500
+num_processes: 1

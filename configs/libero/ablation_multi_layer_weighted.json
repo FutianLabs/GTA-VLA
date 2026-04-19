@@ -1,0 +1,39 @@
+{
+  "_name_or_path": "xvla",
+  "model_type": "xvla",
+  "architectures": ["XVLA"],
+  "auto_map": {
+    "AutoConfig": "configuration_xvla.XVLAConfig",
+    "AutoModel": "modeling_xvla.XVLA"
+  },
+
+  "vlm_backbone_type": "qwen3_vl",
+  "qwen3_pretrained": "Qwen/Qwen3-VL-2B-Instruct",
+  "qwen3_torch_dtype": "bfloat16",
+  "qwen3_use_flash_attn": true,
+
+  "vlm_use_multi_layer": true,
+  "vlm_multi_layer_indices": [8, 12, 16, 20, -1],
+  "vlm_multi_layer_fusion": "weighted",
+
+  "action_mode": "ee6d",
+  "control_mode": "abs",
+  "use_proprio": true,
+  "num_actions": 30,
+
+  "hidden_size": 1024,
+  "depth": 24,
+  "num_heads": 16,
+  "mlp_ratio": 4.0,
+  "num_domains": 30,
+  "len_soft_prompts": 32,
+  "dim_time": 32,
+  "max_len_seq": 512,
+  "use_hetero_proj": false,
+  "soft_prompt_length": 32,
+  "use_multilayer_proj": true,
+  "proj_num_layers": 2,
+  "proj_hidden_size": 1536,
+  "proj_dropout": 0.1
+}
+

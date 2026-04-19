@@ -1,0 +1,7 @@
+[project]
+name = "gta-vla"
+version = "0.1.0"
+description = "Public-facing GTA-VLA repository skeleton"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []

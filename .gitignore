@@ -1,0 +1,54 @@
+# Python cache and build outputs
+__pycache__/
+*.py[codz]
+*.so
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test and tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Notebook and editor artifacts
+.ipynb_checkpoints/
+.cursor/
+.cursorignore
+.vscode/
+
+# OS files
+.DS_Store
+
+# Local env and secrets
+.env
+.env.*
+
+# Project runtime outputs
+logs/
+wandb/
+ckpt/
+visualization/
+exp/
+runnings/
+*.mp4
+
+# Generated or temporary data
+data/_generated/
+
+# External repos or large local dependencies
+SimplerEnv-Plus/
+Isaac-GR00T/
+tsviewer/
+
+# Generated docs
+docs/_build/
