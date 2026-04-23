@@ -1,10 +1,10 @@
 {
-  "_name_or_path": "xvla",
-  "model_type": "xvla",
-  "architectures": ["XVLA"],
+  "_name_or_path": "gtavla",
+  "model_type": "gtavla",
+  "architectures": ["GTAVLA"],
   "auto_map": {
-    "AutoConfig": "configuration_xvla.XVLAConfig",
-    "AutoModel": "modeling_xvla.XVLA"
+    "AutoConfig": "configuration_gtavla.GTAVLAConfig",
+    "AutoModel": "modeling_gtavla.GTAVLA"
   },
 
   "vlm_backbone_type": "qwen3_vl",
@@ -33,6 +33,5 @@
   "proj_hidden_size": 1536,
   "proj_dropout": 0.1,
   "use_soft_prompt": false,
-  "aug_with_optional_view": true,
   "num_diffusion_samples": 4
 }

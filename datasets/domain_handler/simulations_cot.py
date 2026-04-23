@@ -756,6 +756,11 @@ class FractalCotHandler(FractalHandler):
 
 
 if __name__ == "__main__":
+    raise SystemExit(
+        "Debug visualization entrypoint is disabled in open-source mode. "
+        "Move required logic to a standalone script with explicit input paths."
+    )
+
     import argparse
     import shutil
     from PIL import Image, ImageDraw
@@ -969,7 +974,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--compare_output_root",
         type=str,
-        default="/VLA-Data/scripts/lingyiran/x-vla-main/visualization/compare",
+        default=str(Path(__file__).resolve().parents[2] / "visualization" / "compare"),
     )
     parser.add_argument(
         "--compare_with",
@@ -979,17 +984,18 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    project_root = Path(__file__).resolve().parents[2]
     default_meta = {
-        "fractal": "/VLA-Data/scripts/lianqing/data/xvla_metadata/fractal_meta.json",
-        "bridge": "/VLA-Data/scripts/lianqing/data/xvla_metadata/bridge_meta.json",
+        "fractal": str(project_root / "data" / "fractal_meta.json"),
+        "bridge": str(project_root / "data" / "bridge_meta.json"),
     }
     default_annotation = {
-        "fractal": "/VLA-Data/scripts/lianqing/data/xvla/cot_annotations/fractal_annotations_main",
-        "bridge": "/VLA-Data/scripts/lianqing/data/xvla/cot_annotations/bridge_annotations_main",
+        "fractal": str(project_root / "data" / "cot_annotations" / "fractal_annotations_main"),
+        "bridge": str(project_root / "data" / "cot_annotations" / "bridge_annotations_main"),
     }
     default_output = {
-        "fractal": "/VLA-Data/scripts/lingyiran/x-vla-main/visualization/fractal",
-        "bridge": "/VLA-Data/scripts/lingyiran/x-vla-main/visualization/bridge",
+        "fractal": str(project_root / "visualization" / "fractal"),
+        "bridge": str(project_root / "visualization" / "bridge"),
     }
 
     if args.meta_path is None:

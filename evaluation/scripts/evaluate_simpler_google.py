@@ -27,8 +27,8 @@ import simpler_env  # noqa: E402
 from simpler_env.utils.env.observation_utils import get_image_from_maniskill2_obs_dict  # noqa: E402
 from simpler_env.utils.visualization import write_video  # noqa: E402
 
-from models.modeling_xvla import XVLA  # noqa: E402
-from models.processing_xvla import build_xvla_processor  # noqa: E402
+from models.modeling_gtavla import GTAVLA  # noqa: E402
+from models.processing_gtavla import build_gtavla_processor  # noqa: E402
 
 logger = logging.getLogger("evaluate_simpler_google")
 
@@ -192,11 +192,11 @@ def resolve_simpler_dir(simpler_dir: str) -> str:
     return str(candidate)
 
 
-def load_xvla_model_and_processor(
+def load_gtavla_model_and_processor(
     model_path: str,
     device: torch.device,
 ) -> Tuple[torch.nn.Module, Any]:
-    model = XVLA.from_pretrained(model_path)
+    model = GTAVLA.from_pretrained(model_path)
     vlm_type = getattr(model.config, "vlm_backbone_type", "qwen3_vl")
     if vlm_type != "qwen3_vl":
         raise ValueError(f"evaluate_simpler_google only supports qwen3_vl now, got: {vlm_type}")
@@ -205,7 +205,7 @@ def load_xvla_model_and_processor(
     use_cot_training = getattr(model.config, "use_cot_training", False)
     num_views = int(getattr(model.config, "num_views", 1))
     logger.info("Qwen3 processor source: %s", qwen3_path)
-    processor = build_xvla_processor(
+    processor = build_gtavla_processor(
         vlm_backbone_type="qwen3_vl",
         pretrained_name_or_path=qwen3_path,
         num_views=num_views,
@@ -498,7 +498,7 @@ def main():
     logging.basicConfig(level=logging.INFO)
 
     device = torch.device(args.device if args.device != "auto" else ("cuda" if torch.cuda.is_available() else "cpu"))
-    model, processor = load_xvla_model_and_processor(
+    model, processor = load_gtavla_model_and_processor(
         model_path=args.model_path,
         device=device,
     )

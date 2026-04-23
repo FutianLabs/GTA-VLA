@@ -30,8 +30,8 @@ from torch.optim import AdamW
 
 from accelerate import Accelerator
 from datasets import create_dataloader
-from models.modeling_xvla import XVLA
-from models.processing_xvla import XVLAProcessor
+from models.modeling_gtavla import GTAVLA
+from models.processing_gtavla import GTAVLAProcessor
 from peft import LoraConfig, get_peft_model
 
 
@@ -71,10 +71,10 @@ def get_logger(name="train", output_dir=None, accelerator=None, level=logging.IN
 # Argument Parser
 # ============================================================
 def get_args_parser():
-    parser = argparse.ArgumentParser("XVLA Training", add_help=False)
+    parser = argparse.ArgumentParser("GTA-VLA Training", add_help=False)
 
     # I/O
-    parser.add_argument("--models", type=str, required=True, help="Path or HF repo for pretrained XVLA")
+    parser.add_argument("--models", type=str, required=True, help="Path or HF repo for pretrained GTA-VLA")
     parser.add_argument("--output_dir", type=str, default="runnings", help="Directory to save checkpoints")
 
     # Data
@@ -115,7 +115,7 @@ def set_seed(seed: int):
     cudnn.benchmark = True
 
 
-def build_optimizer(model: XVLA, lr: float, weight_decay: float, betas=(0.9, 0.95), lr_coef_soft=1.0):
+def build_optimizer(model: GTAVLA, lr: float, weight_decay: float, betas=(0.9, 0.95), lr_coef_soft=1.0):
     """Split param groups by module type with different learning rates."""
     vlm_params = list(model.vlm.parameters())
     soft_prompt_params = list(model.transformer.soft_prompt_hub.parameters())
@@ -183,7 +183,7 @@ def main(args):
         log_with="tensorboard", 
         project_dir=output_dir
     )
-    accelerator.init_trackers("XVLA-Training")
+    accelerator.init_trackers("GTA-VLA-Training")
     
     accelerator.wait_for_everyone()
     logger = get_logger(__name__, output_dir=output_dir, accelerator=accelerator)
@@ -192,7 +192,7 @@ def main(args):
     logger.info(f"Args: {args}")
 
     # Load model & processor
-    model = XVLA.from_pretrained(args.models)
+    model = GTAVLA.from_pretrained(args.models)
     
     lora_config = LoraConfig(
         lora_alpha=16,
@@ -207,7 +207,7 @@ def main(args):
     model.print_trainable_parameters()
     
     
-    processor = XVLAProcessor.from_pretrained(args.models)
+    processor = GTAVLAProcessor.from_pretrained(args.models)
 
     # Iterable dataloader (don't wrap with prepare)
     train_dataloader = create_dataloader(
@@ -289,7 +289,7 @@ def main(args):
 # Entry
 # ============================================================
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser("XVLA training script", parents=[get_args_parser()])
+    parser = argparse.ArgumentParser("GTA-VLA training script", parents=[get_args_parser()])
     args = parser.parse_args()
     if args.output_dir:
         Path(args.output_dir).mkdir(parents=True, exist_ok=True)

@@ -24,15 +24,15 @@ Language priority: KarlP annotations > original language_instruction.
 
 Usage:
     python datasets/tools/droid_tfrecord_to_h5.py \
-        --input_dir /VLA-Data/scripts/lianqing/data/openX/convert \
-        --output_dir /root/data/openX/x-vla/droid \
+        --input_dir data/openX/convert \
+        --output_dir data/openX/gtavla/droid \
         --calib /root/data/KarlP/droid/cam2base_all.json \
         --n_streams 16 --jpeg_workers 10
 
     # Dry run (first 100 episodes)
     python datasets/tools/droid_tfrecord_to_h5.py \
-        --input_dir /VLA-Data/scripts/lianqing/data/openX/convert \
-        --output_dir /root/data/openX/x-vla/droid --dummy \
+        --input_dir data/openX/convert \
+        --output_dir data/openX/gtavla/droid --dummy \
         --calib /root/data/KarlP/droid/cam2base_all.json
 """
 
@@ -40,6 +40,7 @@ import argparse
 import json
 import os
 import time
+from pathlib import Path
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
@@ -428,8 +429,9 @@ def verify_h5_file(h5_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    project_root = Path(__file__).resolve().parents[2]
     parser.add_argument("--input_dir", type=str,
-                        default="/VLA-Data/scripts/lianqing/data/openX/convert")
+                        default=str(project_root / "data" / "openX" / "convert"))
     parser.add_argument("--output_dir", type=str, required=True)
     parser.add_argument("--dataset_name", type=str, default="droid")
     parser.add_argument("--split", type=str, default="train")

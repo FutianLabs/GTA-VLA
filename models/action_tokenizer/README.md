@@ -8,7 +8,7 @@ VQ-VAE with flow matching for discretizing continuous action chunks, following t
 
 ```bash
 source .venv/bin/activate
-cd /VLA-Data/scripts/lianqing/projects/vla/X-VLA
+cd /path/to/GTA-VLA
 ```
 
 ### Test the Implementation

@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 import json
+import os
 import sys
 from pathlib import Path
 
-COT_ROOT = "/VLA-Data/scripts/lianqing/data/xvla/cot_annotations"
-OUTPUT_DIR = Path(__file__).parent.parent / "data"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+COT_ROOT = os.getenv("GTA_VLA_COT_ROOT", str(PROJECT_ROOT / "data" / "cot_annotations"))
+OUTPUT_DIR = PROJECT_ROOT / "data"
 
 CONFIGS = {
     "droid": {
-        "source_meta": "/VLA-Data/scripts/lingyiran/xvla_original/scripts/droid_meta.json",
+        "source_meta": str(OUTPUT_DIR / "droid_meta.json"),
         "output_name": "droid_meta_direct.json",
         "dataset_name": "DroidCot-Left",
         "observation_key": ["observation/exterior_image_1_left"],
@@ -27,7 +29,7 @@ CONFIGS = {
         "cot_config": {"coord_scale": 1000, "gripper_future_steps": 5, "detector_priority": ["seed_vl", "dino_x"]},
     },
     "robomind-franka": {
-        "source_meta": "/VLA-Data/scripts/lingyiran/xvla_original/scripts/robomind-franka_meta.json",
+        "source_meta": str(OUTPUT_DIR / "robomind-franka_meta.json"),
         "output_name": "robomind-franka_meta_cot.json",
         "dataset_name": "robomind-franka-cot",
         "observation_key": ["observations/rgb_images/camera_top"],
@@ -52,7 +54,7 @@ CONFIGS = {
         "cot_config": {"coord_scale": 1000, "gripper_future_steps": 5, "detector_priority": ["seed_vl", "dino_x"]},
     },
     "robomind-ur": {
-        "source_meta": "/VLA-Data/scripts/lingyiran/xvla_original/scripts/robomind-ur_meta.json",
+        "source_meta": str(OUTPUT_DIR / "robomind-ur_meta.json"),
         "output_name": "robomind-ur_meta_cot.json",
         "dataset_name": "robomind-ur-cot",
         "observation_key": ["observations/rgb_images/camera_top"],

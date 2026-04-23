@@ -243,3 +243,9 @@ class XVLAConfig(PretrainedConfig):
         output["florence_pretrained_name_or_path"] = self.florence_pretrained_name_or_path
 
         return output
+
+
+class GTAVLAConfig(XVLAConfig):
+    """Primary public config name for GTA-VLA."""
+
+    model_type = "gtavla"

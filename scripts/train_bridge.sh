@@ -5,7 +5,7 @@
 #
 # 用法:
 #   ./scripts/train_bridge.sh <metas_path> <run_name> [--scratch] [--batch_size N] [其他参数...]
-# 模型结构/CoT/pick过采样等: 传 train.py 的 --config_path（例如 configs/bridge/xvla_qwen3vl_2b_baseline_cot_pick_oversample.json）
+# 模型结构/CoT/pick过采样等: 传 train.py 的 --config_path（例如 configs/bridge/gtavla_qwen3vl_2b_baseline_cot_pick_oversample.json）
 
 # Parse --scratch flag
 SCRATCH=false
@@ -15,7 +15,7 @@ for arg in "$@"; do
 done
 set -- "${ARGS[@]}"
 
-log_meta_path=/VLA-Data/scripts/lianqing/logs/xvla
+log_meta_path="${LOG_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/logs/gtavla}"
 NUM_GPUS=${MLP_WORKER_GPU:-$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | wc -l)}
 
 # 检测是否是多机环境
@@ -84,8 +84,13 @@ if [ "$SCRATCH" = true ]; then
         --learning_coef 0.1 --freeze_steps 1000 --warmup_steps 2000 \
         --train_metas_path $1 --output_dir $logs ${@:3}
 else
+    BASE_MODEL="${GTA_VLA_BASE_MODEL:-}"
+    if [[ -z "$BASE_MODEL" ]]; then
+        echo "Error: missing base model path. Set GTA_VLA_BASE_MODEL or pass --scratch."
+        exit 1
+    fi
     $LAUNCH_CMD train.py $DS_ARGS \
-        --models '/VLA-Data/scripts/lianqing/checkpoints/2toINF/X-VLA-Pt' \
+        --models "$BASE_MODEL" \
         --iters 200000 --use_cosine_decay --learning_rate 1e-4 --batch_size 32 \
         --learning_coef 0.1 --freeze_steps 1000 --warmup_steps 2000 \
         --train_metas_path $1 --output_dir $logs ${@:3}

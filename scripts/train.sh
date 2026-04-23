@@ -9,8 +9,8 @@
 #   ./scripts/train.sh data/droid_meta.json droid_exp1 --batch_size 16
 #
 # log 目录自动从 meta 文件名推断:
-#   data/bridge_meta.json  → logs/xvla/bridge/<run_name>-MM-DD-HH-MM
-#   data/droid_meta.json   → logs/xvla/droid/<run_name>-MM-DD-HH-MM
+#   data/bridge_meta.json  → logs/gtavla/bridge/<run_name>-MM-DD-HH-MM
+#   data/droid_meta.json   → logs/gtavla/droid/<run_name>-MM-DD-HH-MM
 
 set -euo pipefail
 
@@ -29,8 +29,8 @@ LOG_PREFIX="${BASENAME%_meta}"
 # ─── Environment ────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-LOG_ROOT=/VLA-Data/scripts/lianqing/logs/xvla
-DEFAULT_MODEL='/VLA-Data/scripts/lianqing/checkpoints/2toINF/X-VLA-Pt'
+LOG_ROOT="${LOG_ROOT:-${PROJECT_DIR}/logs/gtavla}"
+DEFAULT_MODEL="${GTA_VLA_BASE_MODEL:-}"
 NUM_GPUS=${MLP_WORKER_GPU:-$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | wc -l)}
 
 if [[ -n "${MLP_MPI_HOSTFILE:-}" && -n "${MLP_WORKER_0_HOST:-}" ]]; then
@@ -75,7 +75,13 @@ TRAIN_ARGS=(
     --batch_size 32 --learning_coef 0.1
     --freeze_steps 1000 --warmup_steps 2000
 )
-[[ "$SCRATCH" = false ]] && TRAIN_ARGS+=(--models "$DEFAULT_MODEL")
+if [[ "$SCRATCH" = false ]]; then
+    if [[ -z "$DEFAULT_MODEL" ]]; then
+        echo "Error: missing base model path. Set GTA_VLA_BASE_MODEL or pass --scratch."
+        exit 1
+    fi
+    TRAIN_ARGS+=(--models "$DEFAULT_MODEL")
+fi
 TRAIN_ARGS+=("${EXTRA_ARGS[@]}")
 
 $LAUNCH_CMD train.py $DS_ARGS "${TRAIN_ARGS[@]}"

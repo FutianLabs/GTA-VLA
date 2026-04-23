@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Run SimplerEnv WidowX evaluation directly against a locally loaded VLA model
-(no FastAPI server required). Supports XVLA as well as OpenVLA, OpenVLA-OFT,
+(no FastAPI server required). Supports GTA-VLA as well as OpenVLA, OpenVLA-OFT,
 and VLA-Adapter checkpoints. Mirrors the behaviour of the HTTP clients under
 evaluation/simpler/WidowX but keeps the model in memory.
 """
@@ -39,8 +39,8 @@ from simpler_env.utils.env.observation_utils import (  # noqa: E402
 )
 from simpler_env.utils.visualization import write_video  # noqa: E402
 
-from models.modeling_xvla import XVLA  # noqa: E402
-from models.processing_xvla import XVLAProcessor, build_xvla_processor  # noqa: E402
+from models.modeling_gtavla import GTAVLA  # noqa: E402
+from models.processing_gtavla import GTAVLAProcessor, build_gtavla_processor  # noqa: E402
 
 try:
     from peft import PeftModel
@@ -52,6 +52,8 @@ logger = logging.getLogger("evaluate_widowx")
 
 def _normalize_arch(name: str) -> str:
     name = name.lower()
+    if name in {"xvla", "gtavla", "gta-vla", "gta_vla"}:
+        return "gtavla"
     if name in {"openvla_oft", "openvlaoft"}:
         return "openvla-oft"
     if name in {"vla_adapter", "vlaadapter"}:
@@ -122,7 +124,7 @@ def get_model_images_from_obs(obs: Dict, num_views: int) -> List[np.ndarray]:
 # -----------------------------------------------------------------------------#
 class LocalWidowXAgent:
     """
-    Thin policy wrapper that calls an in-memory VLA model (XVLA/OpenVLA variants)
+    Thin policy wrapper that calls an in-memory VLA model (GTA-VLA/OpenVLA variants)
     to produce actions. Behaviour mirrors the HTTP-based clients in
     evaluation/simpler/WidowX.
     """
@@ -134,7 +136,7 @@ class LocalWidowXAgent:
         device: torch.device,
         denoising_steps: int = 10,
         domain_id: int = 0,
-        model_arch: str = "xvla",
+        model_arch: str = "gtavla",
         unnorm_key: Optional[str] = None,
         save_video: bool = False,
         z_offset_m: float = 0.0,
@@ -173,7 +175,7 @@ class LocalWidowXAgent:
         self.last_raw_action: Optional[np.ndarray] = None
         self.last_env_action: Optional[np.ndarray] = None
 
-    def _prepare_xvla_inputs(self, images: List[np.ndarray]) -> Dict[str, torch.Tensor]:
+    def _prepare_gtavla_inputs(self, images: List[np.ndarray]) -> Dict[str, torch.Tensor]:
         pil_imgs = [Image.fromarray(image).resize((256, 256), Image.LANCZOS) for image in images]
         processed = self.processor(
             images=pil_imgs,
@@ -203,8 +205,8 @@ class LocalWidowXAgent:
         self.action_plan.extend(actions.tolist())
 
     def _queue_plan(self, images: List[np.ndarray]) -> None:
-        if self.model_arch == "xvla":
-            inputs = self._prepare_xvla_inputs(images)
+        if self.model_arch == "gtavla":
+            inputs = self._prepare_gtavla_inputs(images)
             with torch.inference_mode():
                 # Generate actions with optional CoT
                 if self.enable_cot_visualization and self.use_cot:
@@ -320,9 +322,9 @@ def load_model_and_processor(
     arch = _normalize_arch(model_arch)
     processor_resolved = resolve_processor_path(processor_path)
 
-    if arch == "xvla":
+    if arch == "gtavla":
         # Load model first to determine backbone type
-        model = XVLA.from_pretrained(model_path)
+        model = GTAVLA.from_pretrained(model_path)
         
         # Determine processor based on backbone type (same logic as libero evaluation)
         vlm_type = getattr(model.config, "vlm_backbone_type", "florence2")
@@ -331,7 +333,7 @@ def load_model_and_processor(
             qwen3_path = getattr(model.config, "qwen3_pretrained", "Qwen/Qwen3-VL-2B-Instruct")
             use_cot_training = getattr(model.config, "use_cot_training", False)
             num_views = int(getattr(model.config, "num_views", 1))
-            processor = build_xvla_processor(
+            processor = build_gtavla_processor(
                 vlm_backbone_type="qwen3_vl",
                 pretrained_name_or_path=qwen3_path,
                 num_views=num_views,
@@ -340,7 +342,7 @@ def load_model_and_processor(
             logger.info(f"Loaded Qwen3-VL processor (num_views={num_views}, cot={use_cot_training})")
         else:
             # Load Florence2 processor from checkpoint
-            processor = XVLAProcessor.from_pretrained(processor_resolved)
+            processor = GTAVLAProcessor.from_pretrained(processor_resolved)
             processor.num_views = int(getattr(model.config, "num_views", getattr(processor, "num_views", 1)))
             logger.info(f"Loaded Florence2 processor from {processor_resolved}")
         
@@ -387,7 +389,7 @@ def load_model_and_processor(
         except Exception:
             pass
     if lora_path:
-        logger.warning("Ignoring lora_path for %s models; LoRA loading only supported for XVLA.", arch)
+        logger.warning("Ignoring lora_path for %s models; LoRA loading only supported for GTA-VLA.", arch)
     model.eval()
     return model, processor
 
@@ -523,7 +525,7 @@ def run_widowx_eval(
     domain_id: int,
     device: Optional[torch.device] = None,
     save_video: bool = True,
-    model_arch: str = "xvla",
+    model_arch: str = "gtavla",
     openvla_unnorm_key: Optional[str] = None,
     TASK_CONFIGS = None,
     action_dump_dir: Optional[Path] = None,
@@ -568,11 +570,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--model_arch",
         type=str,
-        default="xvla",
-        choices=["xvla", "openvla", "openvla-oft", "openvla_oft", "openvlaoft", "vla-adapter", "vla_adapter", "vlaadapter"],
+        default="gtavla",
+        choices=["gtavla", "gta-vla", "gta_vla", "xvla", "openvla", "openvla-oft", "openvla_oft", "openvlaoft", "vla-adapter", "vla_adapter", "vlaadapter"],
         help="Which model family to evaluate.",
     )
-    parser.add_argument("--processor_path", type=str, default="/VLA-Data/scripts/lianqing/checkpoints/2toINF/X-VLA-WidowX", help="Optional processor path (defaults to model).")
+    parser.add_argument("--processor_path", type=str, default=None, help="Optional processor path (defaults to model).")
     parser.add_argument("--lora_path", type=str, default=None, help="Optional LoRA weights to merge for evaluation.")
     parser.add_argument(
         "--tasks",
@@ -587,7 +589,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", type=str, default="cuda", help="Device for model inference.")
     parser.add_argument("--denoising_steps", type=int, default=10, help="Diffusion denoising steps.")
     parser.add_argument("--domain_id", type=int, default=0, help="Domain id used by the model.")
-    parser.add_argument("--eval_setting", type=str, default="cogact", choices=["xvla", "official", "cogact"], help="Evaluation setting.")
+    parser.add_argument("--eval_setting", type=str, default="cogact", choices=["gtavla", "xvla", "official", "cogact"], help="Evaluation setting.")
     parser.add_argument(
         "--openvla_unnorm_key",
         type=str,
@@ -630,7 +632,7 @@ def main() -> None:
         args.episodes,
         out_dir,
     )
-    if args.eval_setting == "xvla":
+    if args.eval_setting in {"xvla", "gtavla"}:
         TASK_CONFIGS = {
             "widowx_spoon_on_towel": {"max_steps": 1200, "gripper_close_threshold": 0.7},
             "widowx_carrot_on_plate": {"max_steps": 1200, "gripper_close_threshold": 0.95},

@@ -1,14 +1,14 @@
 {
-  "_name_or_path": "xvla",
-  "model_type": "xvla",
-  "architectures": ["XVLA"],
+  "_name_or_path": "gtavla",
+  "model_type": "gtavla",
+  "architectures": ["GTAVLA"],
   "auto_map": {
-    "AutoConfig": "configuration_xvla.XVLAConfig",
-    "AutoModel": "modeling_xvla.XVLA"
+    "AutoConfig": "configuration_gtavla.GTAVLAConfig",
+    "AutoModel": "modeling_gtavla.GTAVLA"
   },
 
   "vlm_backbone_type": "qwen3_vl",
-  "qwen3_pretrained": "Qwen/Qwen3-VL-4B-Instruct",
+  "qwen3_pretrained": "Qwen/Qwen3-VL-2B-Instruct",
   "qwen3_torch_dtype": "bfloat16",
   "qwen3_use_flash_attn": true,
 
@@ -28,5 +28,3 @@
   "use_hetero_proj": false,
   "soft_prompt_length": 32
 }
-
-

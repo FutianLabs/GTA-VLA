@@ -6,7 +6,7 @@ uses SeedVL VLM to generate natural language instructions based on video frames.
 
 Usage:
     python datasets/tools/generate_instructions_seedvl.py \
-        --h5_dir /root/data/openX/x-vla/bridge_wrist \
+        --h5_dir data/openX/gtavla/bridge_wrist \
         --nproc 10 
         --dry_run
 

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 source .venv/bin/activate
 
 CHECKPOINT_DIR="${1:-.}"
@@ -9,7 +11,7 @@ OUTPUT_ROOT="$CHECKPOINT_DIR/eval_outputs"
 SUMMARY_ROOT="$CHECKPOINT_DIR/eval_outputs/summaries"
 POLL_INTERVAL="${POLL_INTERVAL:-120}"
 WAIT_BEFORE_EVAL="${WAIT_BEFORE_EVAL:-10}"
-SIMPLER_DIR_INPUT="${SIMPLER_DIR:-/VLA-Data/scripts/lingyiran/SimplerEnv}"
+SIMPLER_DIR_INPUT="${SIMPLER_DIR:-${SCRIPT_DIR}/third_party/SimplerEnv}"
 
 if [ ! -d "$SIMPLER_DIR_INPUT" ]; then
   echo "SIMPLER_DIR not found: $SIMPLER_DIR_INPUT"

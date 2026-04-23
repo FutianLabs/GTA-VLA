@@ -5,6 +5,7 @@ Filter RoboMIND meta files: remove episodes whose puppet/end_effector
 """
 import argparse
 import json
+import os
 from functools import partial
 from multiprocessing import Pool
 from pathlib import Path
@@ -12,7 +13,8 @@ from pathlib import Path
 import h5py
 import numpy as np
 
-META_DIR = Path("/VLA-Data/scripts/lianqing/data/xvla_metadata")
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+META_DIR = Path(os.getenv("GTA_VLA_META_DIR", str(_PROJECT_ROOT / "data")))
 
 DATASETS = {
     "robomind-franka-1rgb": {

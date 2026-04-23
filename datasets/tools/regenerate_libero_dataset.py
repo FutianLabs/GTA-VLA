@@ -23,12 +23,15 @@ Usage:
 
 """
 import sys
-sys.path.append("/VLA-Data/scripts/lianqing/projects/vla/libero")
-sys.path.append("/VLA-Data/scripts/lianqing/projects/vla/openvla")
+import os
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.append(os.getenv("LIBERO_REPO", str(PROJECT_ROOT / "third_party" / "libero")))
+sys.path.append(os.getenv("OPENVLA_REPO", str(PROJECT_ROOT / "third_party" / "openvla")))
 
 import argparse
 import json
-import os
 import time
 
 import h5py

@@ -3,6 +3,7 @@
 import sys
 import os
 import tempfile
+from pathlib import Path
 import numpy as np
 import torch
 from typing import List, Optional, Dict, Tuple, Union, TYPE_CHECKING
@@ -10,7 +11,12 @@ from PIL import Image
 import supervision as sv
 
 # Add Grounded-SAM-2 to path
-sys.path.insert(0, "/VLA-Data/scripts/lianqing/projects/vla/X-VLA/datasets/tools/Grounded-SAM-2")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+GROUNDED_SAM2_DIR = os.getenv(
+    "GROUNDED_SAM2_DIR",
+    str(PROJECT_ROOT / "datasets" / "tools" / "Grounded-SAM-2"),
+)
+sys.path.insert(0, GROUNDED_SAM2_DIR)
 from sam2.build_sam import build_sam2_video_predictor, build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 
@@ -58,7 +64,7 @@ class SAM2Tracker:
                 torch.backends.cudnn.allow_tf32 = True
         
         # Change to Grounded-SAM-2 directory for config loading
-        grounded_sam2_dir = "/VLA-Data/scripts/lianqing/projects/vla/X-VLA/datasets/tools/Grounded-SAM-2"
+        grounded_sam2_dir = GROUNDED_SAM2_DIR
         original_dir = os.getcwd()
         
         try:

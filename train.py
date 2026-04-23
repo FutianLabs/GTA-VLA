@@ -70,11 +70,11 @@ def get_logger(name="train", output_dir=None, accelerator=None, level=logging.IN
 class TrainConfig:
     # I/O
     models: Optional[str] = None  # Path or HF repo for pretrained VLA or backbone
-    config_path: Optional[str] = None  # XVLA config json (required when training from scratch)
+    config_path: Optional[str] = None  # GTA-VLA config json (required when training from scratch)
     vlm_pretrained: Optional[str] = None  # Florence checkpoint to initialize backbone weights
     output_dir: str = "runnings"  # Directory to save checkpoints
     train_metas_path: str = None  # Path to training metadata (required)
-    model_arch: str = "xvla"  # Model family to train (xvla, openvla, ...)
+    model_arch: str = "gtavla"  # Model family to train (gtavla, openvla, ...)
     
     # Data
     batch_size: int = 16  # Per-device batch size
@@ -105,7 +105,7 @@ class TrainConfig:
     # Logging / Saving / Evaluation
     save_interval: int = 5000  # Save checkpoint every N steps
     log_interval: int = 20  # Log metrics every N steps
-    wandb_project: str = "XVLA-Training"  # Wandb project name
+    wandb_project: str = "GTA-VLA-Training"  # Wandb project name
     wandb_entity: Optional[str] = None  # Wandb entity (username or team)
     wandb_run_name: Optional[str] = None  # Custom wandb run name
 
@@ -454,21 +454,6 @@ def main(args: TrainConfig):
     )
     
     for batch in train_dataloader:
-        # Debug: Visualize CoT data
-        if accelerator.is_main_process:
-            if args.debug_cot_interval > 0 and global_step % args.debug_cot_interval == 0:
-                try:
-                    from scripts.debug_cot import visualize_cot_batch
-                    cot_output_dir = os.path.join(args.output_dir, "cot_debug")
-                    visualize_cot_batch(
-                        batch,
-                        output_dir=cot_output_dir,
-                        max_samples=args.debug_cot_max_samples,
-                        step=global_step,
-                    )
-                except ImportError:
-                    logging.warning("scripts.debug_cot not found, skipping CoT visualization")
-        
         model_ref = accelerator.unwrap_model(model)
         inputs = components.prepare_batch_fn(batch, model_ref, processor, accelerator.device)
         # Update LR per group (only at the start of accumulation cycle)

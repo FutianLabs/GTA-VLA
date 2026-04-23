@@ -12,8 +12,8 @@ the instruction using the same format as InteractionAugmenter in training.
 
 Usage:
     python tools/cot_demo.py \
-        --checkpoint /VLA-Data/scripts/lianqing/logs/xvla/data/pretrain_cot-02-24-15-44/ckpt-245000 \
-        --config configs/pretrain/xvla_qwen3vl_2b_cot_pretrain.json \
+        --checkpoint /path/to/ckpt \
+        --config configs/pretrain/gtavla_qwen3vl_2b_cot_pretrain.json \
         --port 7860
 
     # With second view image:
@@ -40,9 +40,9 @@ import numpy as np
 from PIL import Image, ImageDraw
 import gradio as gr
 
-from models.configuration_xvla import XVLAConfig
-from models.modeling_xvla import XVLA
-from models.processing_xvla import build_xvla_processor
+from models.configuration_gtavla import XVLAConfig
+from models.modeling_gtavla import XVLA
+from models.processing_gtavla import build_xvla_processor
 from models.vla_factory import _load_checkpoint_keep_mismatch
 from scripts.visualize_cot import parse_cot_elements, visualize_cot_on_image
 

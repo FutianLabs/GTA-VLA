@@ -75,7 +75,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_root", default="/VLA-Data/scripts/lingyiran/data/x-humanoid-robomind/RoboMIND",type=str, required=True, help="RoboMIND数据根目录")
+    parser.add_argument("--data_root", type=str, required=True, help="RoboMIND数据根目录")
     parser.add_argument("--output_dir", type=str, required=True, help="meta文件输出文件夹")
     parser.add_argument("--observation_key", default="observations/rgb_images/camera_top/rgb", type=str, nargs="+", help="观测键")
     parser.add_argument("--language_instruction_key", type=str, default="language_instruction", help="语言指令键")

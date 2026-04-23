@@ -14,7 +14,7 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 """
-X-VLA Models Package
+GTA-VLA Models Package
 
 Provides Vision-Language-Action models with multiple VLM backbone support:
 
@@ -24,26 +24,27 @@ Supported Backbones:
 
 Usage:
     # Florence2 backbone (default, backward compatible)
-    from models import XVLA, XVLAConfig
+    from models import GTAVLA, GTAVLAConfig
     
-    config = XVLAConfig.from_pretrained("configs/libero/from_scratch_abs_ee3d.json")
-    model = XVLA(config)
+    config = GTAVLAConfig.from_pretrained("configs/libero/from_scratch_abs_ee3d.json")
+    model = GTAVLA(config)
     
     # Qwen3-VL backbone
-    config = XVLAConfig(
+    config = GTAVLAConfig(
         vlm_backbone_type="qwen3_vl",
         qwen3_pretrained="Qwen/Qwen3-VL-2B-Instruct",
     )
-    model = XVLA(config)
+    model = GTAVLA(config)
     
     # Or load from config file
-    config = XVLAConfig.from_pretrained("configs/libero/xvla_qwen3vl_2b.json")
-    model = XVLA(config)
+    config = GTAVLAConfig.from_pretrained("configs/libero/gtavla_qwen3vl_2b.json")
+    model = GTAVLA(config)
 """
 
-# XVLA model and config
-from .configuration_xvla import XVLAConfig
-from .modeling_xvla import (
+# GTA-VLA model and config
+from .configuration_gtavla import GTAVLAConfig, XVLAConfig
+from .modeling_gtavla import (
+    GTAVLA,
     XVLA,
     prepare_batch,
     build_vla_optimizer,
@@ -55,7 +56,7 @@ from .modeling_xvla import (
 # from .modeling_xvla_action_token import XVLAActionToken
 
 # Processor
-from .processing_xvla import XVLAProcessor, build_xvla_processor
+from .processing_gtavla import GTAVLAProcessor, XVLAProcessor, build_gtavla_processor, build_xvla_processor
 
 # Transformer components
 from .transformer import SoftPromptedTransformer
@@ -65,10 +66,14 @@ from .action_hub import build_action_space
 
 __all__ = [
     # Model
+    "GTAVLA",
     "XVLA",
     # "XVLAActionToken",  # TODO: implement
+    "GTAVLAConfig",
     "XVLAConfig",
     # Processor
+    "GTAVLAProcessor",
+    "build_gtavla_processor",
     "XVLAProcessor",
     "build_xvla_processor",
     # Training helpers

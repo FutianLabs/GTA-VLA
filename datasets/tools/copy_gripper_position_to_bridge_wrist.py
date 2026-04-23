@@ -6,8 +6,8 @@ but bridge_wrist/ (used by pretrain) is missing it. Both have the same episode I
 
 Usage:
     python datasets/tools/copy_gripper_position_to_bridge_wrist.py \
-        --src /VLA-Data/scripts/lianqing/data/openX/x-vla/bridge \
-        --dst /VLA-Data/scripts/lianqing/data/openX/x-vla/bridge_wrist \
+        --src data/openX/gtavla/bridge \
+        --dst data/openX/gtavla/bridge_wrist \
         --nproc 16
 """
 

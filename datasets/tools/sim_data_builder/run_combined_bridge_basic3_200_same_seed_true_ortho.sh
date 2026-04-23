@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="/VLA-Data/scripts/lingyiran/x-vla-main"
-OUTPUT_DIR="${1:-/VLA-Data/scripts/lianqing/data/openX/x-vla/bridge_objects_basic3_200_combined_same_seed_true_ortho}"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+OUTPUT_DIR="${1:-${ROOT_DIR}/data/openX/gtavla/bridge_objects_basic3_200_combined_same_seed_true_ortho}"
 TARGET_SUCCESS="${TARGET_SUCCESS:-200}"
 MAX_STEPS="${MAX_STEPS:-120}"
 MAX_TOTAL_EPISODE_IDS="${MAX_TOTAL_EPISODE_IDS:-20000}"
@@ -21,6 +21,7 @@ fi
 mkdir -p "$OUTPUT_DIR"
 
 export PYTHONUNBUFFERED=1
+export ROOT_DIR
 export OUTPUT_DIR
 export TARGET_SUCCESS
 export MAX_STEPS
@@ -65,7 +66,9 @@ import os
 import sys
 import time
 
-sys.path.insert(0, "/VLA-Data/scripts/lingyiran/x-vla-main")
+root_dir = os.environ.get("ROOT_DIR", "")
+if root_dir:
+    sys.path.insert(0, root_dir)
 
 from datasets.tools.sim_data_builder.collector import collect_episode
 from datasets.tools.sim_data_builder.run import _write_episode, _write_manifest_entry
@@ -356,7 +359,9 @@ import json
 import os
 import sys
 
-sys.path.insert(0, "/VLA-Data/scripts/lingyiran/x-vla-main")
+root_dir = os.environ.get("ROOT_DIR", "")
+if root_dir:
+    sys.path.insert(0, root_dir)
 
 from datasets.tools.sim_data_builder.gen_meta import generate_meta
 

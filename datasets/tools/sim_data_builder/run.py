@@ -2,27 +2,27 @@
 """
 Main entry point: collect WidowX sim episodes → Bridge-compatible HDF5 + meta.
 
-Examples (在 x-vla-main 根目录执行；数据目录与 bridge_enhance 对齐)：
+Examples (在 GTA-VLA 根目录执行；数据目录与 bridge_enhance 对齐)：
     # Single task, waypoint policy (default)
     python -m datasets.tools.sim_data_builder.run \
         --task widowx_carrot_on_plate \
         --episodes 1 \
-        --output_dir ../data/openX/x-vla/bridge_enhance
+        --output_dir data/openX/gtavla/bridge_enhance
 
     # Null policy (smoke test)
     python -m datasets.tools.sim_data_builder.run \
         --task widowx_carrot_on_plate --policy null --episodes 1 \
-        --output_dir ../data/openX/x-vla/bridge_enhance
+        --output_dir data/openX/gtavla/bridge_enhance
 
     # Default: all rollouts saved. Production: only successes:
-    python -m datasets.tools.sim_data_builder.run --task ... --success_only --output_dir ../data/openX/x-vla/bridge_enhance
+    python -m datasets.tools.sim_data_builder.run --task ... --success_only --output_dir data/openX/gtavla/bridge_enhance
 
     # Debug: save all rollouts + third-view & wrist MP4:
-    python -m datasets.tools.sim_data_builder.run --task ... --save_video --output_dir ../data/openX/x-vla/bridge_enhance
+    python -m datasets.tools.sim_data_builder.run --task ... --save_video --output_dir data/openX/gtavla/bridge_enhance
 
     # Parallel rollouts (use most CPUs; omit --parallel with --success_quota to auto-size):
     python -m datasets.tools.sim_data_builder.run --task widowx_carrot_on_plate \\
-        --episodes 32 --parallel $(nproc) --output_dir ../data/openX/x-vla/bridge_enhance
+        --episodes 32 --parallel $(nproc) --output_dir data/openX/gtavla/bridge_enhance
 """
 
 import argparse

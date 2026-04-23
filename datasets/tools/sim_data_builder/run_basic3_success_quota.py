@@ -17,8 +17,7 @@ def main() -> None:
     from datasets.tools.sim_data_builder.run import run_multi_task_success_quota
     from datasets.tools.sim_data_builder.task_config import list_basic3_task_keys
 
-    lingyiran = root.parent
-    default_out = lingyiran / "data/openX/x-vla/bridge_basic3_200"
+    default_out = root / "data/openX/gtavla/bridge_basic3_200"
 
     parser = argparse.ArgumentParser(
         description="Collect basic3 WidowX tasks with success quota per task."

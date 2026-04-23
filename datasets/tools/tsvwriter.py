@@ -634,53 +634,28 @@ class MultiProcessorTSVWriterWrapper:
 
 
 if __name__ == "__main__":
-    
-    # TODO: judges the min number of multi-processor
+    import argparse
 
-    # dir_dataset = "/comp_robot/lihongyang/code/ProtectedCode/VideoDataAnnotation/VideoTSVConstruction_NoSample/test_data/VLA_DATA/bridge_orig_lerobot"
-    # dir_tsv     = "/comp_robot/lihongyang/code/ProtectedCode/VideoDataAnnotation/VideoTSVConstruction_NoSample/test_data/VLA_DATA/bridge_orig_lerobot_tsv"
-    # data_name   = "BridgeLerobot"
-    # video_encoding = "h264"
-    # tsvwriter = BridgeLerobotTSVWriter(dir_dataset, dir_tsv, data_name, video_encoding)
+    parser = argparse.ArgumentParser("HDF5 to TSV writer")
+    parser.add_argument("--dataset_dir", type=str, required=True)
+    parser.add_argument("--tsv_dir", type=str, required=True)
+    parser.add_argument("--tsv_name", type=str, default="BridgeHDF5")
+    parser.add_argument("--video_encoding", type=str, default="h264")
+    parser.add_argument("--parallel_num", type=int, default=8)
+    parser.add_argument("--debug", action="store_true", default=False)
+    parser.add_argument("--filter_empty_instruction", action="store_true", default=False)
+    args = parser.parse_args()
 
-    dir_dataset = "/VLA-Data/scripts/lianqing/data/openX/x-vla/bridge"
-    dir_tsv_base = "/VLA-Data/scripts/lianqing/data/openX/x-vla/bridge_tsv_lianqing_lang"
-    data_name   = "BridgeHDF5"
-    video_encoding = "h264"
-    DEBUGMODE = False # if True, only write the first 10 samples
-    FILTER_EMPTY_INSTRUCTION = False  # Set to True to filter empty instructions
-    
-    # Automatically add '_filter' suffix to dir if filtering is enabled
-    if FILTER_EMPTY_INSTRUCTION:
-        dir_tsv = dir_tsv_base + "_filter"
-    else:
-        dir_tsv = dir_tsv_base
-    
-    print(f"Configuration:")
-    print(f"  Source: {dir_dataset}")
-    print(f"  Target: {dir_tsv}")
-    print(f"  Filter empty instructions: {FILTER_EMPTY_INSTRUCTION}")
-    print(f"  Debug mode: {DEBUGMODE}")
-    print()
-    
-    # annotation_required_keys = ['abs_action_6d', 'actions', 'dones', 'rewards']  # libero
-    annotation_required_keys = ['action', 'proprio']  # bridge
-    # tsvwriter = LiberoHDF5TSVWriter(
-    #     dir_dataset, 
-    #     dir_tsv, data_name, 
-    #     video_encoding, 
-    #     annotation_required_keys=annotation_required_keys
-    # )
-    tsvwriter = MultiProcessorTSVWriterWrapper(
-        parallel_num=40,
+    annotation_required_keys = ["action", "proprio"]
+    writer = MultiProcessorTSVWriterWrapper(
+        parallel_num=args.parallel_num,
         tsv_writer=HDF5TSVWriter,
-        ori_dataset_dir=dir_dataset,
-        tsv_dir=dir_tsv,
-        tsv_name=data_name,
-        video_encoding=video_encoding,
+        ori_dataset_dir=args.dataset_dir,
+        tsv_dir=args.tsv_dir,
+        tsv_name=args.tsv_name,
+        video_encoding=args.video_encoding,
         annotation_required_keys=annotation_required_keys,
-        debug=DEBUGMODE,
-        filter_empty_instruction=FILTER_EMPTY_INSTRUCTION,
+        debug=args.debug,
+        filter_empty_instruction=args.filter_empty_instruction,
     )
-    
-    tsvwriter.write_tsv()
+    writer.write_tsv()

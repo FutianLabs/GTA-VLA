@@ -7,7 +7,9 @@
 set -e  # Exit on error
 
 # Navigate to project root
-cd /VLA-Data/scripts/lingyiran/x-vla-main
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${PROJECT_DIR}"
 source .venv/bin/activate
 
 # ============================================================
@@ -74,7 +76,7 @@ echo ""
 # Check if connection info exists
 if [[ ! -f "${CONNECTION_INFO}" ]]; then
     echo "❌ Error: Connection info file not found: ${CONNECTION_INFO}"
-    echo "   Please start the XVLA server first and provide the correct path."
+    echo "   Please start the GTA-VLA server first and provide the correct path."
     exit 1
 fi
 

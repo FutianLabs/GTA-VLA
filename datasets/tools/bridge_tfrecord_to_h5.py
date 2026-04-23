@@ -6,8 +6,8 @@ Usage:
         --input_dir <PATH TO TF RECORD DATASET DIR> \
         --output_dir <PATH TO OUTPUT H5 DIR> \
         --nproc <NUMBER OF PROCESSES>
-    python datasets/tools/bridge_tfrecord_to_h5.py --input_dir /VLA-Data/scripts/lianqing/data/openX/convert/bridge/1.0.0 \
-         --output_dir /root/data/openX/x-vla/bridge_wrist --dataset_name bridge --nproc 8
+    python datasets/tools/bridge_tfrecord_to_h5.py --input_dir data/openX/convert/bridge/1.0.0 \
+         --output_dir data/openX/gtavla/bridge_wrist --dataset_name bridge --nproc 8
 
 Structure:
     - Each episode is saved as one H5 file
@@ -617,10 +617,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Convert Bridge dataset from TF records to H5 format (all 4 cameras)"
     )
+    project_root = Path(__file__).resolve().parents[2]
     parser.add_argument(
         "--input_dir",
         type=str,
-        default="/VLA-Data/scripts/lianqing/data/openX",
+        default=str(project_root / "data" / "openX"),
         help="Directory containing TF record dataset (TFDS data_dir)"
     )
     parser.add_argument(
@@ -632,7 +633,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--builder_dir",
         type=str,
-        default="/VLA-Data/scripts/lianqing/data/openX/convert/bridge/1.0.0",
+        default=str(project_root / "data" / "openX" / "convert" / "bridge" / "1.0.0"),
         help="Path to RLDS builder directory (for Bridge dataset)"
     )
     parser.add_argument(
@@ -664,6 +665,6 @@ if __name__ == "__main__":
 
     # Example usage:
     # python bridge_tfrecord_to_h5.py \
-    #     --builder_dir "/VLA-Data/scripts/lianqing/data/openX/convert/bridge/1.0.0" \
-    #     --output_dir "/root/data/openX/x-vla/bridge_4cam" \
+    #     --builder_dir "data/openX/convert/bridge/1.0.0" \
+    #     --output_dir "data/openX/gtavla/bridge_4cam" \
     #     --nproc 8

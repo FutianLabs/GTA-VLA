@@ -2,7 +2,7 @@
 """
 Run LIBERO evaluation directly against a locally loaded VLA model (no HTTP server).
 
-Supports XVLA as well as OpenVLA, OpenVLA-OFT, and VLA-Adapter checkpoints. This
+Supports GTA-VLA as well as OpenVLA, OpenVLA-OFT, and VLA-Adapter checkpoints. This
 script can be used as a standalone evaluator or imported from training to trigger
 periodic evaluations.
 """
@@ -17,8 +17,8 @@ from PIL import Image
 from transformers import AutoProcessor
 
 # Import will be done dynamically based on --sim argument
-from models.modeling_xvla import XVLA
-from models.processing_xvla import XVLAProcessor, build_xvla_processor
+from models.modeling_gtavla import GTAVLA
+from models.processing_gtavla import GTAVLAProcessor, build_gtavla_processor
 try:
     from peft import PeftModel
 except ImportError:  # Optional dependency
@@ -65,6 +65,8 @@ class EvalRunResult(dict):
 
 def _normalize_arch(name: str) -> str:
     name = name.lower()
+    if name in {"xvla", "gtavla", "gta-vla", "gta_vla"}:
+        return "gtavla"
     if name in {"openvla_oft", "openvlaoft"}:
         return "openvla-oft"
     if name in {"vla_adapter", "vlaadapter"}:
@@ -74,7 +76,7 @@ def _normalize_arch(name: str) -> str:
 
 class LocalVLAAgent:
     """
-    Thin policy wrapper that calls an in-memory VLA model (XVLA or OpenVLA variants)
+    Thin policy wrapper that calls an in-memory VLA model (GTA-VLA or OpenVLA variants)
     to produce actions. Mirrors the HTTP client behaviour used by the FastAPI server.
     """
 
@@ -85,7 +87,7 @@ class LocalVLAAgent:
         device: torch.device,
         denoising_steps: int = 10,
         domain_id: int = 3,
-        model_arch: str = "xvla",
+        model_arch: str = "gtavla",
         unnorm_key: Optional[str] = None,
         gripper_close_threshold: float = 0.5,
         client_module: Any = None,
@@ -124,9 +126,9 @@ class LocalVLAAgent:
         wrist_view = obs["robot0_eye_in_hand_image"]
         return [Image.fromarray(main_view), Image.fromarray(wrist_view)]
 
-    def _prepare_xvla_inputs(self, obs: Dict, goal: str) -> Dict[str, torch.Tensor]:
+    def _prepare_gtavla_inputs(self, obs: Dict, goal: str) -> Dict[str, torch.Tensor]:
         """
-        Prepare inputs for XVLA model inference.
+        Prepare inputs for GTA-VLA model inference.
         
         For Qwen3-VL backbone, the processor will automatically apply the chat template:
         <|im_start|>user\n<|vision_start|><|image_pad|><|vision_end|>instruction<|im_end|>
@@ -192,7 +194,7 @@ class LocalVLAAgent:
         if actions.ndim == 1:
             actions = actions[None, :]
 
-        if self.model_arch == "xvla":
+        if self.model_arch == "gtavla":
             if self.proprio is None:
                 self.proprio = np.zeros_like(actions[-1])
             copy_len = min(9, actions.shape[1], self.proprio.shape[0])
@@ -204,8 +206,8 @@ class LocalVLAAgent:
 
     def step(self, obs: Dict, goal: str) -> np.ndarray:
         if not self.action_plan:
-            if self.model_arch == "xvla":
-                inputs = self._prepare_xvla_inputs(obs, goal)
+            if self.model_arch == "gtavla":
+                inputs = self._prepare_gtavla_inputs(obs, goal)
                 with torch.inference_mode():
                     action = (
                         self.model.generate_actions(steps=self.denoising_steps, **inputs)
@@ -247,9 +249,9 @@ def load_model_and_processor(
     arch = _normalize_arch(model_arch)
     processor_resolved = resolve_processor_path(processor_path)
 
-    if arch == "xvla":
+    if arch == "gtavla":
         # Load model first to determine backbone type
-        model = XVLA.from_pretrained(model_path)
+        model = GTAVLA.from_pretrained(model_path)
         
         # Determine processor based on backbone type (same logic as vla_factory.py)
         vlm_type = getattr(model.config, "vlm_backbone_type", "florence2")
@@ -257,7 +259,7 @@ def load_model_and_processor(
         if vlm_type == "qwen3_vl":
             qwen3_path = getattr(model.config, "qwen3_pretrained", "Qwen/Qwen3-VL-2B-Instruct")
             use_cot_training = getattr(model.config, "use_cot_training", False)
-            processor = build_xvla_processor(
+            processor = build_gtavla_processor(
                 vlm_backbone_type="qwen3_vl",
                 pretrained_name_or_path=qwen3_path,
                 num_views=2,  # LIBERO uses 2 camera views
@@ -266,7 +268,7 @@ def load_model_and_processor(
             logger.info(f"Loaded Qwen3-VL processor (num_views=2, cot={use_cot_training})")
         else:
             # Load Florence2 processor from checkpoint
-            processor = XVLAProcessor.from_pretrained(processor_resolved)
+            processor = GTAVLAProcessor.from_pretrained(processor_resolved)
             logger.info(f"Loaded Florence2 processor from {processor_resolved}")
         
         uses_flash_attn = (
@@ -313,7 +315,7 @@ def load_model_and_processor(
         except Exception:
             pass
     if lora_path:
-        logger.warning("Ignoring lora_path for %s models; LoRA loading only supported for XVLA.", arch)
+        logger.warning("Ignoring lora_path for %s models; LoRA loading only supported for GTA-VLA.", arch)
     model.eval()
     return model, processor
 
@@ -330,7 +332,7 @@ def run_libero_eval(
     domain_id: int = 3,
     device: Optional[torch.device] = None,
     save_video: bool = True,
-    model_arch: str = "xvla",
+    model_arch: str = "gtavla",
     openvla_unnorm_key: Optional[str] = None,
     gripper_close_threshold: float = 0.5,
     sim_type: str = "libero",
@@ -380,11 +382,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--model_arch",
         type=str,
-        default="xvla",
-        choices=["xvla", "openvla", "openvla-oft", "openvla_oft", "openvlaoft", "vla-adapter", "vla_adapter", "vlaadapter"],
+        default="gtavla",
+        choices=["gtavla", "gta-vla", "gta_vla", "xvla", "openvla", "openvla-oft", "openvla_oft", "openvlaoft", "vla-adapter", "vla_adapter", "vlaadapter"],
         help="Which model family to evaluate.",
     )
-    parser.add_argument("--processor_path", type=str, default="/VLA-Data/scripts/lianqing/checkpoints/2toINF/X-VLA-Pt", help="Optional processor path (defaults to model).")
+    parser.add_argument("--processor_path", type=str, default=None, help="Optional processor path (defaults to model).")
     parser.add_argument("--lora_path", type=str, default=None, help="Optional LoRA weights to merge for evaluation.")
     parser.add_argument(
         "--task_suites",

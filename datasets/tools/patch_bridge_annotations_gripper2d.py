@@ -9,13 +9,13 @@ the annotation JSONs.
 Usage:
     # Step 1: copy gripper_position to bridge_wrist/ first
     python datasets/tools/copy_gripper_position_to_bridge_wrist.py \
-        --src /VLA-Data/scripts/lianqing/data/openX/x-vla/bridge \
-        --dst /VLA-Data/scripts/lianqing/data/openX/x-vla/bridge_wrist
+        --src data/openX/gtavla/bridge \
+        --dst data/openX/gtavla/bridge_wrist
 
     # Step 2: patch annotations
     python datasets/tools/patch_bridge_annotations_gripper2d.py \
-        --annotation_dir /VLA-Data/scripts/lianqing/data/xvla/cot_annotations/bridge_annotations_wrist \
-        --h5_dir /VLA-Data/scripts/lianqing/data/openX/x-vla/bridge \
+        --annotation_dir data/cot_annotations/bridge_annotations_wrist \
+        --h5_dir data/openX/gtavla/bridge \
         --nproc 16
 """
 

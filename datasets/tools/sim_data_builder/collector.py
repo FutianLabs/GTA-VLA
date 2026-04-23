@@ -11,6 +11,7 @@ Usage:
 
 import gc
 import hashlib
+import os
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -272,10 +273,11 @@ def apply_sim_gpu_env(physical_gpu_id: int) -> None:
 
 
 def ensure_simpler_env_importable() -> None:
-    candidates = [
-        Path("/VLA-Data/scripts/lingyiran/SimplerEnv"),
-        Path("/VLA-Data/scripts/lingyiran/SimplerEnv/ManiSkill2_real2sim"),
-    ]
+    candidates = []
+    env_root = os.environ.get("SIMPLER_DIR", "").strip()
+    if env_root:
+        base = Path(env_root).expanduser()
+        candidates.extend([base, base / "ManiSkill2_real2sim"])
     root = Path(__file__).resolve().parents[3]
     candidates.extend([
         root / "Isaac-GR00T" / "external_dependencies" / "SimplerEnv",

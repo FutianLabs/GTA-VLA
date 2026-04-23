@@ -13,8 +13,9 @@ shift
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-CONFIG_PATH="${PROJECT_DIR}/configs/pretrain/xvla_qwen3vl_2b_cot.json"
-SRC_PRETRAIN_META_DIR="/VLA-Data/scripts/lianqing/data/xvla_metadata/pretrain"
+CONFIG_PATH="${PROJECT_DIR}/configs/pretrain/gtavla_qwen3vl_2b_cot.json"
+SRC_PRETRAIN_META_DIR="${SRC_PRETRAIN_META_DIR:-${PROJECT_DIR}/data/pretrain}"
+COT_ANNOTATION_ROOT="${COT_ANNOTATION_ROOT:-${PROJECT_DIR}/data/cot_annotations}"
 META_MIX_DIR="${PROJECT_DIR}/data/_generated/pretrain_cot_from_pretrain"
 
 mkdir -p "$META_MIX_DIR"
@@ -42,7 +43,7 @@ for meta_name in "${PRETRAIN_METAS[@]}"; do
 
     dst_meta="${META_MIX_DIR}/${meta_name}"
 
-    SRC_META="$src_meta" DST_META="$dst_meta" uv run python - <<'PY'
+SRC_META="$src_meta" DST_META="$dst_meta" COT_ANNOTATION_ROOT="$COT_ANNOTATION_ROOT" uv run python - <<'PY'
 import json
 import os
 
@@ -53,12 +54,13 @@ with open(src, "r", encoding="utf-8") as f:
     meta = json.load(f)
 
 dataset_name = meta.get("dataset_name", "")
+cot_root = os.environ["COT_ANNOTATION_ROOT"]
 annotation_dir_map = {
-    "Bridge": "/VLA-Data/scripts/lianqing/data/xvla/cot_annotations/bridge_annotations_wrist",
-    "Droid-Left": "/VLA-Data/scripts/lianqing/data/xvla/cot_annotations/droid_annotations_main",
-    "robomind-franka-1rgb": "/VLA-Data/scripts/lianqing/data/xvla/cot_annotations/robomind-franka_annotations_main",
-    "robomind-franka-3rgb": "/VLA-Data/scripts/lianqing/data/xvla/cot_annotations/robomind-franka_annotations_main",
-    "robomind-ur": "/VLA-Data/scripts/lianqing/data/xvla/cot_annotations/robomind-ur_annotations_main",
+    "Bridge": f"{cot_root}/bridge_annotations_wrist",
+    "Droid-Left": f"{cot_root}/droid_annotations_main",
+    "robomind-franka-1rgb": f"{cot_root}/robomind-franka_annotations_main",
+    "robomind-franka-3rgb": f"{cot_root}/robomind-franka_annotations_main",
+    "robomind-ur": f"{cot_root}/robomind-ur_annotations_main",
 }
 
 if dataset_name not in annotation_dir_map:
@@ -85,7 +87,7 @@ cd "$PROJECT_DIR"
 if command -v uv >/dev/null 2>&1; then
     uv run bash scripts/train.sh \
         "$META_MIX_DIR" "$RUN_NAME" --scratch \
-        --model_arch xvla \
+        --model_arch gtavla \
         --config_path "$CONFIG_PATH" \
         --use_cosine_decay --learning_rate 1e-4 --learning_coef 0.1 \
         --warmup_steps 4000 --freeze_steps 2000 --batch_size 24 \
@@ -93,7 +95,7 @@ if command -v uv >/dev/null 2>&1; then
 else
     bash scripts/train.sh \
         "$META_MIX_DIR" "$RUN_NAME" --scratch \
-        --model_arch xvla \
+        --model_arch gtavla \
         --config_path "$CONFIG_PATH" \
         --use_cosine_decay --learning_rate 1e-4 --learning_coef 0.1 \
         --warmup_steps 4000 --freeze_steps 2000 --batch_size 24 \

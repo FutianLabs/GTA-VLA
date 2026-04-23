@@ -1,5 +1,13 @@
-cd /VLA-Data/scripts/lingyiran/x-vla-main
+#!/bin/bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${PROJECT_DIR}"
 source .venv/bin/activate
+
+CONNECTION_INFO="${1:-logs/info.json}"
+SEED="${2:-20260108}"
 
 # --- 运行模板 (取消注释你想测试的任务) ---
 
@@ -19,11 +27,11 @@ source .venv/bin/activate
 
 
 # --- 当前执行 ---
-# uv run -m evaluation.simpler.WidowX.client_unified --task widowx_stack_cube_9grid --connection_info /VLA-Data/scripts/lingyiran/x-vla-main/logs/info.json --seed 20260108
+# uv run -m evaluation.simpler.WidowX.client_unified --task widowx_stack_cube_9grid --connection_info "${CONNECTION_INFO}" --seed "${SEED}"
 
 # #Stack Cube Series
-# uv run -m evaluation.simpler.WidowX.client_blocks_unified --task widowx_stack_cube_9grid_nearby_distractors --connection_info /VLA-Data/scripts/lingyiran/x-vla-main/logs/info.json --seed 20260108
-# uv run -m evaluation.simpler.WidowX.client_blocks_unified --task widowx_stack_cube_9grid_distractors --connection_info /VLA-Data/scripts/lingyiran/x-vla-main/logs/info.json --seed 20260108
-uv run -m evaluation.simpler.WidowX.client_blocks_unified --task widowx_stack_cube_9grid_bigger --connection_info /VLA-Data/scripts/lingyiran/x-vla-main/logs/info.json --seed 20260108
-uv run -m evaluation.simpler.WidowX.client_blocks_unified --task widowx_stack_cube_9grid --connection_info /VLA-Data/scripts/lingyiran/x-vla-main/logs/info.json --seed 20260108
+# uv run -m evaluation.simpler.WidowX.client_blocks_unified --task widowx_stack_cube_9grid_nearby_distractors --connection_info "${CONNECTION_INFO}" --seed "${SEED}"
+# uv run -m evaluation.simpler.WidowX.client_blocks_unified --task widowx_stack_cube_9grid_distractors --connection_info "${CONNECTION_INFO}" --seed "${SEED}"
+uv run -m evaluation.simpler.WidowX.client_blocks_unified --task widowx_stack_cube_9grid_bigger --connection_info "${CONNECTION_INFO}" --seed "${SEED}"
+uv run -m evaluation.simpler.WidowX.client_blocks_unified --task widowx_stack_cube_9grid --connection_info "${CONNECTION_INFO}" --seed "${SEED}"
 

@@ -8,7 +8,7 @@ for arg in "$@"; do
 done
 set -- "${ARGS[@]}"
 
-log_meta_path=/VLA-Data/scripts/lingyiran/x-vla-main/ckpt
+log_meta_path="${LOG_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/ckpt}"
 NUM_GPUS=${MLP_WORKER_GPU:-$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | wc -l)}
 
 if [[ -z "$MLP_MPI_HOSTFILE" || -z "$MLP_WORKER_0_HOST" ]]; then
@@ -70,8 +70,13 @@ if [ "$SCRATCH" = true ]; then
         --learning_coef 0.1 --freeze_steps 1000 --warmup_steps 2000 \
         --train_metas_path $1 --output_dir $logs ${@:3}
 else
+    BASE_MODEL="${GTA_VLA_BASE_MODEL:-}"
+    if [[ -z "$BASE_MODEL" ]]; then
+        echo "Error: missing base model path. Set GTA_VLA_BASE_MODEL or pass --scratch."
+        exit 1
+    fi
     $LAUNCH_CMD train.py $DS_ARGS \
-        --models '/VLA-Data/scripts/lianqing/checkpoints/2toINF/X-VLA-Pt' \
+        --models "$BASE_MODEL" \
         --iters 200000 --use_cosine_decay --learning_rate 1e-4 --batch_size 32 \
         --learning_coef 0.1 --freeze_steps 1000 --warmup_steps 2000 \
         --train_metas_path $1 --output_dir $logs ${@:3}

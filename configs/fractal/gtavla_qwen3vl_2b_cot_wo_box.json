@@ -1,10 +1,10 @@
 {
-  "_name_or_path": "xvla",
-  "model_type": "xvla",
-  "architectures": ["XVLA"],
+  "_name_or_path": "gtavla",
+  "model_type": "gtavla",
+  "architectures": ["GTAVLA"],
   "auto_map": {
-    "AutoConfig": "configuration_xvla.XVLAConfig",
-    "AutoModel": "modeling_xvla.XVLA"
+    "AutoConfig": "configuration_gtavla.GTAVLAConfig",
+    "AutoModel": "modeling_gtavla.GTAVLA"
   },
 
   "vlm_backbone_type": "qwen3_vl",
@@ -26,7 +26,7 @@
   "num_domains": 30,
   "len_soft_prompts": 32,
   "dim_time": 32,
-  "max_len_seq": 512,
+  "max_len_seq": 1024,
   "use_hetero_proj": false,
   "use_multilayer_proj": true,
   "proj_num_layers": 2,
@@ -39,5 +39,16 @@
   "cot_coord_scale": 1000,
   "cot_gripper_future_steps": 5,
   "cot_detector_priority": ["seed_vl", "dino_x"],
-  "num_diffusion_samples": 4
+  "num_diffusion_samples": 4,
+  "use_interaction_augmentation": true,
+  "interaction_aug_ratio": 0.5,
+  "interaction_modes": {
+    "none": 0.48,
+    "pick_box": 0.03,
+    "place_box": 0.03,
+    "pick_and_place": 0.03,
+    "affordance_2d": 0.4,
+    "gripper_path_2d": 0.0
+  }
+  
 }

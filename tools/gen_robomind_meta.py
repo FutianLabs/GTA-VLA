@@ -2,15 +2,15 @@ import argparse
 import os
 import json
 import h5py
+from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 from tqdm import tqdm
 
-DATA_ROOTS = [
-    "/VLA-Data/scripts/lianqing/data/x-humanoid-robomind/RoboMIND/benchmark1_0_extracted",
-    "/VLA-Data/scripts/lianqing/data/x-humanoid-robomind/RoboMIND/benchmark1_1_extracted",
-    "/VLA-Data/scripts/lianqing/data/x-humanoid-robomind/RoboMIND/benchmark1_2_extracted",
-    "/VLA-Data/scripts/lianqing/data/x-humanoid-robomind/RoboMIND/example_data_extracted",
-]
+_roots_env = os.getenv("GTA_VLA_ROBOMIND_ROOTS", "")
+if _roots_env.strip():
+    DATA_ROOTS = [p for p in _roots_env.split(":") if p.strip()]
+else:
+    DATA_ROOTS = [os.path.expanduser("~/data/x-humanoid-robomind/RoboMIND/benchmark1_0_extracted")]
 
 SINGLE_ARM_GROUPS = {
     "robomind-franka": {
@@ -122,7 +122,7 @@ def generate_meta(output_dir, num_workers=16, filter_empty=True, path_files=None
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output_dir", type=str,
-                        default="/VLA-Data/scripts/lingyiran/xvla_original/scripts")
+                        default=str(Path(__file__).resolve().parent.parent / "data"))
     parser.add_argument("--num_workers", type=int, default=16)
     parser.add_argument("--no_filter", action="store_true",
                         help="Skip hdf5 validation, include all trajectory files")

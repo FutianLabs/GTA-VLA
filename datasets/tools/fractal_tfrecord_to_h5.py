@@ -4,7 +4,7 @@ Convert Fractal (RT-1) dataset from TFRecord to H5 format.
 Usage:
     python datasets/tools/fractal_tfrecord_to_h5.py \
         --input_dir ~/data/openX/fractal20220817_data \
-        --output_dir ~/data/openX/x-vla/fractal \
+        --output_dir ~/data/openX/gtavla/fractal \
         --nproc 8
 
     # Quick test with first 100 episodes:

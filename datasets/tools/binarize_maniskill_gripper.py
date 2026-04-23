@@ -3,14 +3,14 @@ Binarize ManiSkill bridge-format HDF5 gripper values.
 
 Usage:
     python datasets/tools/binarize_maniskill_gripper.py \
-        --src /VLA-Data/scripts/lianqing/data/openX/x-vla/bridge_5k_group \
-        --dst /VLA-Data/scripts/lianqing/data/openX/x-vla/bridge_5k_group_bin \
+        --src data/openX/gtavla/bridge_5k_group \
+        --dst data/openX/gtavla/bridge_5k_group_bin \
         --threshold 0.7 \
         --nproc 16
 
     python datasets/tools/binarize_maniskill_gripper.py \
-        --meta_path /VLA-Data/scripts/lianqing/data/xvla_metadata/debug_200_per_task_train_maniskill_cot_meta.json \
-        --dst /VLA-Data/scripts/lianqing/data/openX/x-vla/bridge_5k_group_bin \
+        --meta_path data/meta/debug_200_per_task_train_maniskill_cot_meta.json \
+        --dst data/openX/gtavla/bridge_5k_group_bin \
         --threshold 0.7 \
         --nproc 16
 """

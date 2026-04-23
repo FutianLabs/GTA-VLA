@@ -38,7 +38,7 @@ from PIL import Image
 from .modeling_florence2 import Florence2ForConditionalGeneration
 from .transformer import SoftPromptedTransformer
 from .action_hub import build_action_space
-from .configuration_xvla import XVLAConfig
+from .configuration_xvla import XVLAConfig, GTAVLAConfig
 
 
 def _get_torch_dtype(dtype_str: str) -> torch.dtype:
@@ -1027,12 +1027,6 @@ class XVLA(PreTrainedModel):
                             action, cot_texts = result
                             action = action.squeeze(0).float().cpu().numpy()
                             cot_text = cot_texts[0] if cot_texts else ""
-                            print(f"\n{'='*80}")
-                            print(f"MODEL CoT OUTPUT")
-                            print(f"{'='*80}")
-                            print(f"Instruction: {payload['language_instruction']}")
-                            print(f"CoT: {cot_text}")
-                            print(f"{'='*80}\n")
                             return JSONResponse({"action": action.tolist(), "cot": cot_text})
                         else:
                             action = result.squeeze(0).float().cpu().numpy()
@@ -1053,6 +1047,13 @@ class XVLA(PreTrainedModel):
         assert self.app is not None
         import uvicorn
         uvicorn.run(self.app, host=host, port=port)
+
+
+class GTAVLA(XVLA):
+    """Primary public model name for GTA-VLA."""
+
+    config_class = GTAVLAConfig
+    base_model_prefix = "gtavla"
 
 
 # ------------------------------------------------------------------------------

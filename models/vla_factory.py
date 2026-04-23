@@ -17,7 +17,7 @@
 VLA Model Factory.
 
 Provides unified loading for different VLA architectures:
-  - XVLA (with Florence2 or Qwen3-VL backbone)
+  - GTA-VLA / XVLA (with Florence2 or Qwen3-VL backbone)
   - OpenVLA family (openvla, openvla-oft, vla-adapter)
 """
 
@@ -120,10 +120,10 @@ def _load_checkpoint_keep_mismatch(model, checkpoint_path: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# XVLA Loader (supports both Florence2 and Qwen3-VL backbones)
+# GTA-VLA Loader (supports both Florence2 and Qwen3-VL backbones)
 # ---------------------------------------------------------------------------
-def _is_xvla_checkpoint(path: str | None) -> bool:
-    """Return True if path looks like an XVLA checkpoint directory."""
+def _is_gtavla_checkpoint(path: str | None) -> bool:
+    """Return True if path looks like a GTA-VLA/XVLA checkpoint directory."""
     if path is None or not os.path.isdir(path):
         return False
     config_path = os.path.join(path, "config.json")
@@ -136,13 +136,17 @@ def _is_xvla_checkpoint(path: str | None) -> bool:
         return False
     model_type = cfg.get("model_type")
     archs = cfg.get("architectures") or []
-    return model_type == "xvla" or "XVLA" in archs
+    return model_type in {"xvla", "gtavla"} or "XVLA" in archs or "GTAVLA" in archs
+
+
+def _is_xvla_checkpoint(path: str | None) -> bool:
+    return _is_gtavla_checkpoint(path)
 
 
 _DEFAULT_FLORENCE_HUB = "microsoft/Florence-2-large"
 
 
-def resolve_xvla_vlm_path_for_processor(config) -> tuple[str, str]:
+def resolve_gtavla_vlm_path_for_processor(config) -> tuple[str, str]:
     vlm = (getattr(config, "vlm_backbone_type", "florence2") or "florence2").lower()
     if vlm == "qwen3_vl":
         return "qwen3_vl", getattr(config, "qwen3_pretrained", "Qwen/Qwen3-VL-2B-Instruct")
@@ -152,8 +156,47 @@ def resolve_xvla_vlm_path_for_processor(config) -> tuple[str, str]:
         if fc is not None:
             florence_path = getattr(fc, "_name_or_path", None) or getattr(fc, "name_or_path", None)
     if not florence_path:
-        florence_path = (os.environ.get("XVLA_FLORENCE_PRETRAINED") or "").strip() or _DEFAULT_FLORENCE_HUB
+        florence_path = (
+            os.environ.get("GTAVLA_FLORENCE_PRETRAINED")
+            or os.environ.get("XVLA_FLORENCE_PRETRAINED")
+            or ""
+        ).strip() or _DEFAULT_FLORENCE_HUB
     return "florence2", florence_path
+
+
+def resolve_xvla_vlm_path_for_processor(config) -> tuple[str, str]:
+    return resolve_gtavla_vlm_path_for_processor(config)
+
+
+def load_gtavla_from_pretrained_dir(
+    pretrained_model_name_or_path: str,
+    *,
+    num_views: int = 3,
+    trust_remote_code: bool = True,
+):
+    from .configuration_gtavla import GTAVLAConfig
+    from .modeling_gtavla import GTAVLA
+    from .processing_gtavla import GTAVLAProcessor
+
+    path = os.path.abspath(os.path.expanduser(pretrained_model_name_or_path))
+    if not os.path.isdir(path):
+        raise FileNotFoundError(path)
+    config = GTAVLAConfig.from_pretrained(path)
+    model = GTAVLA.from_pretrained(path, trust_remote_code=trust_remote_code)
+    vlm_type, vlm_path = resolve_gtavla_vlm_path_for_processor(config)
+    nv = int(num_views) if num_views is not None else int(getattr(config, "num_views", 3))
+    if vlm_type == "qwen3_vl":
+        processor = GTAVLAProcessor.from_pretrained_vlm(
+            "qwen3_vl",
+            vlm_path,
+            num_views=nv,
+            use_cot_training=getattr(config, "use_cot_training", False),
+            cot_max_length=getattr(config, "cot_max_length", 768),
+        )
+    else:
+        processor = GTAVLAProcessor.from_pretrained_vlm("florence2", vlm_path, num_views=nv)
+    processor.num_views = nv
+    return model, processor
 
 
 def load_xvla_from_pretrained_dir(
@@ -162,29 +205,11 @@ def load_xvla_from_pretrained_dir(
     num_views: int = 3,
     trust_remote_code: bool = True,
 ):
-    from .configuration_xvla import XVLAConfig
-    from .modeling_xvla import XVLA
-    from .processing_xvla import XVLAProcessor
-
-    path = os.path.abspath(os.path.expanduser(pretrained_model_name_or_path))
-    if not os.path.isdir(path):
-        raise FileNotFoundError(path)
-    config = XVLAConfig.from_pretrained(path)
-    model = XVLA.from_pretrained(path, trust_remote_code=trust_remote_code)
-    vlm_type, vlm_path = resolve_xvla_vlm_path_for_processor(config)
-    nv = int(num_views) if num_views is not None else int(getattr(config, "num_views", 3))
-    if vlm_type == "qwen3_vl":
-        processor = XVLAProcessor.from_pretrained_vlm(
-            "qwen3_vl",
-            vlm_path,
-            num_views=nv,
-            use_cot_training=getattr(config, "use_cot_training", False),
-            cot_max_length=getattr(config, "cot_max_length", 768),
-        )
-    else:
-        processor = XVLAProcessor.from_pretrained_vlm("florence2", vlm_path, num_views=nv)
-    processor.num_views = nv
-    return model, processor
+    return load_gtavla_from_pretrained_dir(
+        pretrained_model_name_or_path,
+        num_views=num_views,
+        trust_remote_code=trust_remote_code,
+    )
 
 
 def _load_xvla(load_path: str | None, args) -> VLAComponents:
@@ -195,26 +220,26 @@ def _load_xvla(load_path: str | None, args) -> VLAComponents:
     
     Usage:
         # Florence2 (default)
-        python train.py --model_arch xvla \\
+        python train.py --model_arch gtavla \\
             --config_path configs/libero/from_scratch_abs_ee3d.json
         
         # Qwen3-VL
-        python train.py --model_arch xvla \\
-            --config_path configs/libero/xvla_qwen3vl_2b.json
+        python train.py --model_arch gtavla \\
+            --config_path configs/libero/gtavla_qwen3vl_2b.json
     """
-    from .configuration_xvla import XVLAConfig
-    from .modeling_xvla import (
-        XVLA,
+    from .configuration_gtavla import GTAVLAConfig
+    from .modeling_gtavla import (
+        GTAVLA,
         build_vla_optimizer,
-        prepare_batch as xvla_prepare_batch,
+        prepare_batch as gtavla_prepare_batch,
         update_vla_learning_rates,
     )
-    from .processing_xvla import XVLAProcessor, build_xvla_processor
+    from .processing_gtavla import GTAVLAProcessor, build_gtavla_processor
 
     checkpoint_path = None
     if args.resume_from_checkpoint is not None:
         checkpoint_path = args.resume_from_checkpoint
-    elif _is_xvla_checkpoint(load_path):
+    elif _is_gtavla_checkpoint(load_path):
         checkpoint_path = load_path
     elif load_path is not None and args.config_path is None and args.vlm_pretrained is None:
         checkpoint_path = load_path
@@ -223,10 +248,10 @@ def _load_xvla(load_path: str | None, args) -> VLAComponents:
     if loading_checkpoint:
         config = None
         if args.config_path:
-            config = _load_config(XVLAConfig, args.config_path)
+            config = _load_config(GTAVLAConfig, args.config_path)
         if config is None:
-            config = _load_config(XVLAConfig, checkpoint_path)
-        model = XVLA(config)
+            config = _load_config(GTAVLAConfig, checkpoint_path)
+        model = GTAVLA(config)
         _load_checkpoint_keep_mismatch(model, checkpoint_path)
         # Determine processor based on backbone type
         vlm_type = getattr(model.config, "vlm_backbone_type", "florence2")
@@ -234,7 +259,7 @@ def _load_xvla(load_path: str | None, args) -> VLAComponents:
         
         if vlm_type == "qwen3_vl":
             qwen3_path = getattr(model.config, "qwen3_pretrained", "Qwen/Qwen3-VL-2B-Instruct")
-            processor = build_xvla_processor(
+            processor = build_gtavla_processor(
                 vlm_backbone_type="qwen3_vl",
                 pretrained_name_or_path=qwen3_path,
                 num_views=getattr(model.config, 'num_views', 3),
@@ -242,9 +267,9 @@ def _load_xvla(load_path: str | None, args) -> VLAComponents:
                 cot_max_length=getattr(model.config, 'cot_max_length', 768),
             )
         else:
-            _, vlm_path = resolve_xvla_vlm_path_for_processor(model.config)
+            _, vlm_path = resolve_gtavla_vlm_path_for_processor(model.config)
             florence_path = args.vlm_pretrained or args.models or vlm_path
-            processor = XVLAProcessor.from_pretrained_vlm(
+            processor = GTAVLAProcessor.from_pretrained_vlm(
                 "florence2",
                 florence_path,
                 num_views=getattr(model.config, "num_views", 3),
@@ -252,8 +277,8 @@ def _load_xvla(load_path: str | None, args) -> VLAComponents:
     else:
         config_source = args.config_path or load_path
         if config_source is None:
-            raise ValueError("Training XVLA from scratch requires --config_path pointing to an XVLA config.")
-        config = _load_config(XVLAConfig, config_source)
+            raise ValueError("Training GTA-VLA from scratch requires --config_path pointing to a GTA-VLA config.")
+        config = _load_config(GTAVLAConfig, config_source)
         
         vlm_type = getattr(config, "vlm_backbone_type", "florence2")
         use_cot_training = getattr(config, "use_cot_training", False)
@@ -262,8 +287,8 @@ def _load_xvla(load_path: str | None, args) -> VLAComponents:
             # Qwen3-VL backbone
             qwen3_path = args.vlm_pretrained or getattr(config, "qwen3_pretrained", "Qwen/Qwen3-VL-2B-Instruct")
             config.qwen3_pretrained = qwen3_path
-            model = XVLA(config)
-            processor = build_xvla_processor(
+            model = GTAVLA(config)
+            processor = build_gtavla_processor(
                 vlm_backbone_type="qwen3_vl",
                 pretrained_name_or_path=qwen3_path,
                 num_views=getattr(config, 'num_views', 3),
@@ -275,10 +300,10 @@ def _load_xvla(load_path: str | None, args) -> VLAComponents:
             florence_path = args.vlm_pretrained or args.models or getattr(config, "florence_pretrained_name_or_path", None)
             if florence_path:
                 config.florence_pretrained_name_or_path = florence_path
-            model = XVLA(config)
+            model = GTAVLA(config)
             processor = None
             if florence_path:
-                processor = XVLAProcessor.from_pretrained(florence_path)
+                processor = GTAVLAProcessor.from_pretrained(florence_path)
 
     def build_optimizer_fn(model_instance):
         return build_vla_optimizer(
@@ -303,8 +328,8 @@ def _load_xvla(load_path: str | None, args) -> VLAComponents:
 
     def prepare_fn(batch, _model_instance, processor_instance, device):
         if processor_instance is None:
-            raise ValueError("XVLA training requires a tokenizer/processor for language encoding.")
-        return xvla_prepare_batch(batch, processor_instance, device)
+            raise ValueError("GTA-VLA training requires a tokenizer/processor for language encoding.")
+        return gtavla_prepare_batch(batch, processor_instance, device)
 
     return VLAComponents(
         model=model,
@@ -404,7 +429,10 @@ def _load_openvla_family(load_path: str | None, args, variant: str) -> VLACompon
 # ---------------------------------------------------------------------------
 # Normalize architecture aliases to canonical names
 _ARCH_ALIASES = {
-    "xvla": "xvla",
+    "gtavla": "gtavla",
+    "gta-vla": "gtavla",
+    "gta_vla": "gtavla",
+    "xvla": "gtavla",
     "openvla": "openvla",
     "openvla-oft": "openvla-oft",
     "openvla_oft": "openvla-oft",
@@ -423,7 +451,7 @@ def load_vla_components(model_arch: str, load_path: str, args) -> VLAComponents:
     not by the model_arch argument. Use config.vlm_backbone_type to specify.
     
     Supported architectures:
-        - xvla: XVLA (backbone determined by config)
+        - gtavla: GTA-VLA (backbone determined by config)
         - openvla: OpenVLA base model
         - openvla-oft: OpenVLA with OFT
         - vla-adapter: VLA adapter model
@@ -441,7 +469,7 @@ def load_vla_components(model_arch: str, load_path: str, args) -> VLAComponents:
     if arch is None:
         raise ValueError(f"Unknown model_arch '{model_arch}'. Supported: {list(_ARCH_ALIASES.keys())}")
 
-    if arch == "xvla":
+    if arch == "gtavla":
         return _load_xvla(load_path, args)
 
     # OpenVLA family (openvla, openvla-oft, vla-adapter)

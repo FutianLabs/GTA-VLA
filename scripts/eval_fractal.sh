@@ -6,7 +6,7 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
 CKPT_ROOT="${CKPT_ROOT:-$PROJECT_DIR/ckpt/fractal}"
 SAVE_ROOT="${SAVE_ROOT:-$PROJECT_DIR/visualization/fractal_0311}"
-SIMPLER_DIR="${SIMPLER_DIR:-/VLA-Data/scripts/lingyiran/SimplerEnv}"
+SIMPLER_DIR="${SIMPLER_DIR:-${PROJECT_DIR}/third_party/SimplerEnv}"
 PYTHON_BIN="${PYTHON_BIN:-$PROJECT_DIR/.venv/bin/python}"
 
 EPISODES_PER_SCENARIO="${EPISODES_PER_SCENARIO:-1}"

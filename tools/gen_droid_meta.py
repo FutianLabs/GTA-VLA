@@ -3,6 +3,7 @@ import glob
 import mmengine
 import h5py
 import io
+from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from functools import partial
 from tqdm import tqdm
@@ -108,13 +109,13 @@ def main():
     parser.add_argument(
         "--data_dir",
         type=str,
-        default="/VLA-Data/scripts/lingyiran/data/openX/droid_hdf5",
+        default=str((Path(__file__).resolve().parent.parent / "data" / "openX" / "droid_hdf5")),
         help="Directory containing Droid HDF5 files"
     )
     parser.add_argument(
         "--output_path",
         type=str,
-        default="/VLA-Data/scripts/lingyiran/xvla_original/scripts/droid_meta.json",
+        default=str((Path(__file__).resolve().parent.parent / "data" / "droid_meta.json")),
         help="Path to save metadata JSON"
     )
     parser.add_argument(

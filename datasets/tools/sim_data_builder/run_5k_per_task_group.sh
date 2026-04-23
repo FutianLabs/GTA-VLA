@@ -2,14 +2,13 @@
 # 单卡：直接 ./run_5k_per_task_group.sh（默认并行 4，减轻 Vulkan DeviceLost）
 # 多卡：NUM_GPUS=8 NPROC=16 ./run_5k_per_task_group.sh
 # 单卡想更快：NPROC=8 ./run_5k_per_task_group.sh（仍可能抢显存，视情况调小）
-# 用法：在 x-vla-main 根下 export PYTHONPATH=$PWD:...SimplerEnv...
+# 用法：在 GTA-VLA 根下 export PYTHONPATH=$PWD:...SimplerEnv...
 
 set -euo pipefail
-XVLA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-cd "$XVLA_ROOT"
-export PYTHONPATH="${XVLA_ROOT}:${PYTHONPATH:-}"
-LINGYIRAN="$(cd "${XVLA_ROOT}/.." && pwd)"
-OUT="${1:-${LINGYIRAN}/data/openX/x-vla/bridge_5k_group}"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+cd "$PROJECT_ROOT"
+export PYTHONPATH="${PROJECT_ROOT}:${PYTHONPATH:-}"
+OUT="${1:-${PROJECT_ROOT}/data/openX/gtavla/bridge_5k_group}"
 mkdir -p "$OUT"
 
 NUM_GPUS="${NUM_GPUS:-1}"

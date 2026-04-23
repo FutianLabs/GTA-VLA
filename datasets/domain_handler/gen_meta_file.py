@@ -75,10 +75,14 @@ def _check_agibot_episode(args_tuple):
 
 
 def generate_agibot_meta(num_workers: int = 32):
-    data_root = "/VLA-Data/scripts/lingyiran/data/agibot-world/AgiBotWorld-Alpha"
+    data_root = os.path.expanduser(
+        os.getenv("GTA_VLA_AGIBOT_DATA_ROOT", "~/data/agibot-world/AgiBotWorld-Alpha")
+    )
     proprio_root = os.path.join(data_root, "proprio_stats")
     obs_root = os.path.join(data_root, "observations")
-    annotation_dir = "/VLA-Data/scripts/lingyiran/data/agibot-world/annotations"
+    annotation_dir = os.path.expanduser(
+        os.getenv("GTA_VLA_AGIBOT_ANNOTATION_DIR", "~/data/agibot-world/annotations")
+    )
 
     tasks = sorted(os.listdir(proprio_root))
     work_items = []
@@ -135,8 +139,12 @@ def _check_robomind_h5(filepath):
 
 
 def generate_robomind_meta(num_workers: int = 32):
-    data_root = "/VLA-Data/scripts/lingyiran/data/x-humanoid-robomind/RoboMIND/benchmark1_0_extracted/h5_agilex_3rgb"
-    annotation_dir = "/VLA-Data/scripts/lingyiran/data/x-humanoid-robomind/annotations"
+    data_root = os.path.expanduser(
+        os.getenv("GTA_VLA_ROBOMIND_DATA_ROOT", "~/data/x-humanoid-robomind/RoboMIND/benchmark1_0_extracted/h5_agilex_3rgb")
+    )
+    annotation_dir = os.path.expanduser(
+        os.getenv("GTA_VLA_ROBOMIND_ANNOTATION_DIR", "~/data/x-humanoid-robomind/annotations")
+    )
 
     all_h5 = glob.glob(os.path.join(data_root, "**/trajectory.hdf5"), recursive=True)
     print(f"Found {len(all_h5)} trajectory files, validating with {num_workers} workers...")
@@ -175,12 +183,15 @@ def generate_libero_meta():
     meta["observation_key"] = ["observation/agentview_rgb", "observation/eye_in_hand_rgb"]
     meta["dataset_name"] = "libero"
     meta["language_instruction_key"] = "instruction"
-    filelist = glob.glob("/VLA-Data/scripts/lianqing/data/libero_xvla_flip/*no_noops/*hdf5")
+    libero_glob = os.path.expanduser(
+        os.getenv("GTA_VLA_LIBERO_GLOB", "~/data/libero/*no_noops/*hdf5")
+    )
+    filelist = glob.glob(libero_glob)
     filelist = [i for i in filelist if "libero_90_no_noops" not in i]
     filelist = sorted(filelist)
     meta['datalist'] = filelist
     print(f"Total files: {len(filelist)}")
-    output_path = "/VLA-Data/scripts/lianqing/projects/vla/X-VLA/data/libero_meta.json"
+    output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/libero_meta.json"))
     mmengine.dump(meta, output_path)
     print(f"Saved to: {output_path}")
 
@@ -190,11 +201,14 @@ def generate_libero_mix_meta():
     meta["observation_key"] = ["observation/agentview_rgb", "observation/eye_in_hand_rgb"]
     meta["dataset_name"] = "libero"
     meta["language_instruction_key"] = "instruction"
-    filelist = glob.glob("/VLA-Data/scripts/lianqing/data/libero_plus_training_30k/*hdf5")
+    libero_mix_glob = os.path.expanduser(
+        os.getenv("GTA_VLA_LIBERO_MIX_GLOB", "~/data/libero_plus_training_30k/*hdf5")
+    )
+    filelist = glob.glob(libero_mix_glob)
     filelist = sorted(filelist)
     meta['datalist'] = filelist
     print(f"Total files: {len(filelist)}")
-    output_path = "/VLA-Data/scripts/lianqing/projects/vla/X-VLA/data/libero_mix_meta.json"
+    output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/libero_mix_meta.json"))
     mmengine.dump(meta, output_path)
     print(f"Saved to: {output_path}")
 
@@ -204,7 +218,10 @@ def generate_bridge_meta(num_workers: int = 32):
     meta["observation_key"] = ["observation/image_0"]
     meta["dataset_name"] = "Bridge"
     meta["language_instruction_key"] = "instruction"
-    filelist = glob.glob("/VLA-Data/scripts/lianqing/data/openX/x-vla/bridge/*hdf5")
+    bridge_glob = os.path.expanduser(
+        os.getenv("GTA_VLA_BRIDGE_GLOB", "~/data/openX/bridge/*hdf5")
+    )
+    filelist = glob.glob(bridge_glob)
     filelist = sorted(filelist)
     print(f"Total files found: {len(filelist)}")
     filtered_filelist = []
@@ -225,7 +242,7 @@ def generate_bridge_meta(num_workers: int = 32):
     filtered_filelist = sorted(filtered_filelist)
     meta['datalist'] = filtered_filelist
     print(f"Empty: {empty_count}, Valid: {len(filtered_filelist)}")
-    output_path = "/VLA-Data/scripts/lianqing/projects/vla/X-VLA/data/bridge_meta_ins.json"
+    output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/bridge_meta_ins.json"))
     mmengine.dump(meta, output_path)
     print(f"Saved to: {output_path}")
 
@@ -260,7 +277,9 @@ def _check_droid_h5(args):
 
 
 def generate_droid_meta(num_workers: int = 32, calib_mode: str = "direct"):
-    data_root = "/VLA-Data/scripts/lianqing/data/openX/x-vla/droid"
+    data_root = os.path.expanduser(
+        os.getenv("GTA_VLA_DROID_DATA_ROOT", "~/data/openX/droid")
+    )
     meta = {
         "observation_key": [
             "observation/exterior_image_1_left",
@@ -323,7 +342,9 @@ def generate_droid_meta(num_workers: int = 32, calib_mode: str = "direct"):
 
 
 def generate_fractal_meta(num_workers: int = 32):
-    data_root = os.path.expanduser("~/data/openX/x-vla/fractal")
+    data_root = os.path.expanduser(
+        os.getenv("GTA_VLA_FRACTAL_DATA_ROOT", "~/data/openX/fractal")
+    )
     meta = dict()
     meta["observation_key"] = ["observation/image_0"]
     meta["dataset_name"] = "Fractal"

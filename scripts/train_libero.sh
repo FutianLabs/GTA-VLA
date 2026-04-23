@@ -14,7 +14,7 @@ for arg in "$@"; do
 done
 set -- "${ARGS[@]}"
 
-log_meta_path=/VLA-Data/scripts/lianqing/logs/xvla
+log_meta_path="${LOG_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/logs/gtavla}"
 NUM_GPUS=${MLP_WORKER_GPU:-$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | wc -l)}
 
 # 检测是否是多机环境
@@ -81,8 +81,13 @@ if [ "$SCRATCH" = true ]; then
         --iters 60000 --image_color_jitter False --batch_size 32 \
         --train_metas_path $1 --output_dir $logs ${@:3}
 else
+    BASE_MODEL="${GTA_VLA_BASE_MODEL:-}"
+    if [[ -z "$BASE_MODEL" ]]; then
+        echo "Error: missing base model path. Set GTA_VLA_BASE_MODEL or pass --scratch."
+        exit 1
+    fi
     $LAUNCH_CMD train.py $DS_ARGS \
-        --models '/VLA-Data/scripts/lianqing/checkpoints/2toINF/X-VLA-Pt' \
+        --models "$BASE_MODEL" \
         --iters 60000 --use_cosine_decay --image_color_jitter False \
         --train_metas_path $1 --output_dir $logs ${@:3}
 fi

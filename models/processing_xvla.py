@@ -475,3 +475,33 @@ def build_xvla_processor(
         cot_max_length=cot_max_length,
         **kwargs,
     )
+
+
+class GTAVLAProcessor(XVLAProcessor):
+    """Primary public processor name for GTA-VLA."""
+
+
+def build_gtavla_processor(
+    vlm_backbone_type: Literal["florence2", "qwen3_vl"] = "florence2",
+    pretrained_name_or_path: Optional[str] = None,
+    num_views: int = 3,
+    language_max_length: int = None,
+    use_cot_training: bool = False,
+    cot_max_length: int = 768,
+    **kwargs,
+) -> GTAVLAProcessor:
+    if pretrained_name_or_path is None:
+        if vlm_backbone_type == "qwen3_vl":
+            pretrained_name_or_path = "Qwen/Qwen3-VL-2B-Instruct"
+        else:
+            pretrained_name_or_path = "microsoft/Florence-2-large"
+
+    return GTAVLAProcessor.from_pretrained_vlm(
+        vlm_backbone_type=vlm_backbone_type,
+        pretrained_name_or_path=pretrained_name_or_path,
+        num_views=num_views,
+        language_max_length=language_max_length,
+        use_cot_training=use_cot_training,
+        cot_max_length=cot_max_length,
+        **kwargs,
+    )

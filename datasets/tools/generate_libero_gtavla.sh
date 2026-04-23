@@ -14,18 +14,20 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 LOG_DIR="logs/libero_generation_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$LOG_DIR"
 
 # Task configurations
 declare -A TASKS
-# TASKS[libero_spatial]="/VLA-Data/scripts/lianqing/projects/vla/openpi/third_party/libero/libero/libero/../datasets/libero_spatial"
-# TASKS[libero_object]="/VLA-Data/scripts/lianqing/projects/vla/openpi/third_party/libero/libero/libero/../datasets/libero_object"
-# TASKS[libero_goal]="/VLA-Data/scripts/lianqing/projects/vla/openpi/third_party/libero/libero/libero/../datasets/libero_goal"
-# TASKS[libero_10]="/VLA-Data/scripts/lianqing/projects/vla/openpi/third_party/libero/libero/libero/../datasets/libero_10"
-# TASKS[libero_90]="/VLA-Data/scripts/lianqing/projects/vla/openpi/third_party/libero/libero/libero/../datasets/libero_90"
+# TASKS[libero_spatial]="/path/to/libero/datasets/libero_spatial"
+# TASKS[libero_object]="/path/to/libero/datasets/libero_object"
+# TASKS[libero_goal]="/path/to/libero/datasets/libero_goal"
+# TASKS[libero_10]="/path/to/libero/datasets/libero_10"
+# TASKS[libero_90]="/path/to/libero/datasets/libero_90"
 
-TARGET_BASE="/VLA-Data/scripts/lianqing/data/libero_xvla"
+TARGET_BASE="${TARGET_BASE:-${PROJECT_DIR}/data/libero_gtavla}"
 
 # Arrays to track PIDs and status
 declare -A PIDS
@@ -198,9 +200,5 @@ main() {
 # Run main function
 main
 
-# # libero_10
-python datasets/tools/regenerate_libero_dataset.py \
-    --libero_task_suite libero_10 \
-    --libero_raw_data_dir /VLA-Data/scripts/lianqing/data/yifengzhu-hf/LIBERO-datasets/libero_10 \
-    --libero_target_dir /VLA-Data/scripts/lianqing/data/libero_xvla/libero_10_no_noops_debug
+# NOTE: Removed hardcoded local debug command.
     

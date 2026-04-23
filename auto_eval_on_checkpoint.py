@@ -13,10 +13,10 @@ Usage:
 
 Examples:
   # Libero: evaluate each new ckpt, run final libero-plus eval at step 60000
-  python auto_eval_on_checkpoint.py ~/logs/xvla/libero_scratch/run1/ 60000 libero --max_tasks 50
+  python auto_eval_on_checkpoint.py ~/logs/gtavla/libero_scratch/run1/ 60000 libero --max_tasks 50
 
   # Bridge: evaluate each new ckpt, stop at step 50000
-  python auto_eval_on_checkpoint.py ~/logs/xvla/bridge_exp/run1/ 50000 widowx
+  python auto_eval_on_checkpoint.py ~/logs/gtavla/bridge_exp/run1/ 50000 widowx
 """
 
 import argparse
@@ -32,9 +32,9 @@ from typing import Dict, List, Optional, Tuple, Set
 # ==================== Configuration ====================
 
 DEFAULT_PROCESSOR = {
-    "widowx": "/VLA-Data/scripts/lianqing/checkpoints/2toINF/X-VLA-WidowX",
-    "libero": "/VLA-Data/scripts/lianqing/checkpoints/2toINF/X-VLA-LIBERO",
-    "simpler_google": "/VLA-Data/scripts/lianqing/checkpoints/2toINF/X-VLA-Pt",
+    "widowx": os.getenv("GTA_VLA_WIDOWX_PROCESSOR"),
+    "libero": os.getenv("GTA_VLA_LIBERO_PROCESSOR"),
+    "simpler_google": os.getenv("GTA_VLA_SIMPLER_PROCESSOR"),
 }
 
 DEFAULT_EVAL_MODULE = {
@@ -177,11 +177,11 @@ def save_results_tsv(tsv_path: Path, step: int, task_results: Dict[str, float],
     print("=" * 80 + "\n")
 
 
-def build_eval_command(task: str, ckpt_path: Path, processor_path: str, output_dir: Path,
+def build_eval_command(task: str, ckpt_path: Path, processor_path: Optional[str], output_dir: Path,
                        eval_module: str, extra_args: List[str]) -> List[str]:
     """Build evaluation command."""
     cmd = [sys.executable, "-m", eval_module, "--model_path", str(ckpt_path), "--output_dir", str(output_dir)]
-    if task != "simpler_google":
+    if task != "simpler_google" and processor_path:
         cmd += ["--processor_path", processor_path]
     return cmd + extra_args
 
@@ -500,7 +500,7 @@ def main() -> None:
         'task': task,
         'exp_name': exp_name,
         'eval_module': args.eval_module or DEFAULT_EVAL_MODULE[task],
-        'processor_path': os.path.expanduser(args.processor_path or DEFAULT_PROCESSOR[task]),
+        'processor_path': os.path.expanduser(args.processor_path) if args.processor_path else DEFAULT_PROCESSOR[task],
         'eval_args': list(args.eval_arg),
         'max_tasks': args.max_tasks,
         'final_eval_script': args.final_eval_script,

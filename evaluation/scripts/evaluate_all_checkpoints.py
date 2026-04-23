@@ -125,10 +125,10 @@ def main() -> None:
         raise FileNotFoundError(f"Experiment directory not found: {exp_dir}")
 
     default_processor = {
-        "widowx": "/VLA-Data/scripts/lianqing/checkpoints/2toINF/X-VLA-WidowX",
-        "libero": "/VLA-Data/scripts/lianqing/checkpoints/2toINF/X-VLA-Libero",
+        "widowx": os.getenv("GTA_VLA_WIDOWX_PROCESSOR"),
+        "libero": os.getenv("GTA_VLA_LIBERO_PROCESSOR"),
     }
-    processor_path = os.path.expanduser(args.processor_path or default_processor[args.task])
+    processor_path = os.path.expanduser(args.processor_path) if args.processor_path else default_processor[args.task]
     default_script = {
         "widowx": "evaluate_widowx",
         "libero": "evaluate_libero",
@@ -150,8 +150,9 @@ def main() -> None:
     for ckpt in checkpoints:
         match = re.match(r"ckpt-(\d+)", ckpt.name)
         step = int(match.group(1)) if match else None
-        eval_script = str(eval_script).replace("/VLA-Data/scripts/lianqing/projects/vla/X-VLA/", "")
-        cmd = [sys.executable, "-m", str(eval_script).replace("/", "."), "--model_path", str(ckpt), "--processor_path", processor_path]
+        cmd = [sys.executable, "-m", str(eval_script).replace("/", "."), "--model_path", str(ckpt)]
+        if processor_path:
+            cmd += ["--processor_path", processor_path]
 
         if args.output_root:
             out_dir = args.output_root.expanduser() / exp_dir.name / ckpt.name

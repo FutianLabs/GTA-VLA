@@ -7,11 +7,16 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
 # Default model path if not provided
-DEFAULT_MODEL="/VLA-Data/scripts/lianqing/logs/xvla/bridge_scratch/xvla_qwen3vl_2b_baseline1-02-22-13-43/ckpt-200000"
-# DEFAULT_MODEL="/VLA-Data/scripts/lianqing/logs/xvla/bridge_scratch/bridge_wrist_baseline-01-29-03-06"
-# DEFAULT_MODEL="/VLA-Data/scripts/lianqing/checkpoints/2toINF/X-VLA-WidowX"
+DEFAULT_MODEL="${GTA_VLA_MODEL_PATH:-}"
 MODEL_PATH="${1:-$DEFAULT_MODEL}"
 NUM_VIEWS=2
+
+if [[ -z "$MODEL_PATH" ]]; then
+    echo "Error: missing model path."
+    echo "Usage: ./run_base_server.sh <MODEL_PATH> [NUM_VIEWS]"
+    echo "Or export GTA_VLA_MODEL_PATH to set a default."
+    exit 1
+fi
 
 echo "============================================================"
 echo "  Starting VLA Base Server"
