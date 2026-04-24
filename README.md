@@ -158,10 +158,14 @@ bash scripts/train.sh data/bridge_meta.json bridge_exp1
 
 This command infers the dataset prefix from the metadata filename, creates a timestamped output directory, and launches either `accelerate` or `deepspeed` depending on the number of visible GPUs.
 
+Replace the metadata and config paths with your local files before launching.
+
 To train from scratch instead of starting from a pretrained base model:
 
 ```bash
-bash scripts/train.sh data/bridge_meta.json bridge_exp1 --scratch --config_path configs/<domain>/<config>.json
+bash scripts/train.sh <run_name> [--scratch] \
+--train_metas_path /path/to/maniskill_meta.json \
+--config_path configs/<domain>/<config>.json
 ```
 
 If you are not using `--scratch`, set the base model path before launching:
