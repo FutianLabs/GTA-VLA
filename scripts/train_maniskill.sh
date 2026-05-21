@@ -26,9 +26,6 @@ else
     IS_MULTINODE=true
 fi
 
-export http_proxy=http://100.68.175.233:3128
-export https_proxy=http://100.68.175.233:3128
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 if [[ -z "$META_PATH" ]]; then

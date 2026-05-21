@@ -107,7 +107,7 @@ After training the tokenizer, integrate it into the VLA model:
 2. Replace continuous action head with discrete token prediction
 3. Use autoregressive decoding for action generation
 
-See `vla-integration` todo for implementation details.
+Action-token VLA integration is not included in this release snapshot; document the concrete integration path here once the public API and checkpoint format are finalized.
 
 ## Troubleshooting
 

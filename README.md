@@ -1,12 +1,20 @@
 # GTA-VLA
 
-GTA-VLA is a public-facing repository skeleton for a Vision-Language-Action project.
+GTA-VLA (Guide, Think, Act) is an interactive Vision-Language-Action framework for spatially steerable embodied reasoning. It lets users optionally guide robot policies with visual cues such as affordance points, boxes, and traces, then conditions spatial-visual chain-of-thought reasoning and action generation on that guidance.
 
-This repository is being prepared from an internal development workspace. The current version is a curated first-pass export that keeps the core source code, configs, training and evaluation entrypoints, and metadata templates, while intentionally excluding datasets, checkpoints, experiment logs, visualization outputs, and local environment artifacts.
+This repository provides the public code release for training, evaluation, metadata preparation, and model loading. Raw datasets, experiment logs, and local environment artifacts are intentionally excluded.
+
+## Links
+
+- Paper: [Guide, Think, Act: Interactive Embodied Reasoning in Vision-Language-Action Models](https://arxiv.org/abs/2605.13632)
+- Project page: [GTA-VLA Project Page](https://signalispupupu.github.io/GTA-VLA_ProjPage/)
+- Checkpoints: [SignalIsPuPuPu/GTA-VLA](https://huggingface.co/SignalIsPuPuPu/GTA-VLA)
+
+The paper reports an 81.2% success rate on the in-domain SimplerEnv WidowX benchmark and shows that one-shot spatial guidance can improve recovery under visual shifts and spatial ambiguity.
 
 ## Status
 
-This repository is under active cleanup before open-source release.
+This repository is the public GTA-VLA code release.
 
 Current scope:
 
@@ -16,12 +24,12 @@ Current scope:
 - Configuration files
 - Metadata examples
 
-Not included yet:
+Not included in this repository:
 
-- Public checkpoints
-- Reproducibility benchmarks
-- Complete installation validation
-- Full documentation and examples
+- Raw datasets
+- Experiment logs and local runtime artifacts
+- Simulator assets that must be installed from their upstream projects
+- Full installation and benchmark CI validation
 
 ## Repository Layout
 
@@ -83,11 +91,9 @@ The default dependency set includes PyTorch 2.8 and CUDA 12 runtime wheels. Befo
 
 ### 4. Handle optional local evaluation dependencies
 
-[`requirements.txt`](requirements.txt) currently includes editable dependencies on local checkouts such as `third_party/SimplerEnv` and `third_party/SimplerEnv/ManiSkill2_real2sim`. These entries are only valid if those repositories are present in the expected locations.
+[`requirements.txt`](requirements.txt) keeps SimplerEnv-related editable installs commented out by default. This lets the core GTA-VLA package install on machines that do not have local simulator checkouts.
 
-If you only need the core GTA-VLA codebase, remove or comment out those `-e ./third_party/...` lines before running `uv pip install -r requirements.txt`.
-
-If you need simulation-based evaluation, install the external environments first and then update those editable dependency paths to match your local checkout.
+If you need simulation-based evaluation, install the external environments first and then either install them manually or uncomment and update those editable dependency paths to match your local checkout.
 
 Example setup for `SimplerEnv`:
 
@@ -236,7 +242,7 @@ If you only need offline training, you do not need to install every evaluation b
 
 ## Checkpoints
 
-Public checkpoint download links are not included in this repository yet. Once public artifacts are ready, they can be documented here without changing the expected on-disk layout used by the training and evaluation scripts.
+Public checkpoints are hosted on Hugging Face at [SignalIsPuPuPu/GTA-VLA](https://huggingface.co/SignalIsPuPuPu/GTA-VLA). You can use that repository as `GTA_VLA_BASE_MODEL` or pass a downloaded checkpoint path to scripts that accept `--models`.
 
 The repository currently expects checkpoints to live inside a run directory and to be named by training step:
 
@@ -274,30 +280,23 @@ Notes:
 
 The current public export still has several limitations:
 
-- some dependency entries in `requirements.txt` point to local editable installs and must be replaced or removed before use on a new machine
+- optional simulation evaluation dependencies in `requirements.txt` are documented as commented local editable installs and must be installed separately when needed
 - metadata examples under `data/` contain development-time dataset paths and are not drop-in runnable without path updates
 - some evaluation flows assume locally prepared simulator checkouts, benchmark assets, or connection files
-- public checkpoints, benchmark tables, and end-to-end installation validation are not included in this release snapshot
-
-## Release Checklist
-
-The following cleanup items can already be identified from the current repository snapshot:
-
-- replace or document editable `third_party` dependencies in [`requirements.txt`](requirements.txt), especially `SimplerEnv` and `ManiSkill2_real2sim`
-- deduplicate repeated Python dependencies in [`requirements.txt`](requirements.txt), such as `daqp`, `evdev`, `mink`, `opencv-python`, `pynput`, `python-xlib`, and `qpsolvers`
-- remove machine-specific proxy exports from training launchers before release, for example in `scripts/train_bridge.sh`, `scripts/train_fractal.sh`, and `scripts/train_maniskill.sh`
-- review helper scripts and tools that assume Linux-specific local paths or shared-memory locations, such as `/dev/shm` usage in `datasets/tools/tsvwriter.py`
-- normalize README and script examples so they only reference repository-relative paths and public environment variables
-
-The following items still require author decisions or additional release work:
-
-- choose and document official usage examples for training and evaluation
-- add automated tests and CI coverage
-- publish citation information and public artifact links
+- end-to-end installation and benchmark CI validation are not included in this release snapshot
 
 ## Citation
 
-TODO: Add BibTeX entries and paper links.
+If you use GTA-VLA, please cite:
+
+```bibtex
+@article{ling2026guidethinkact,
+  title={Guide, Think, Act: Interactive Embodied Reasoning in Vision-Language-Action Models},
+  author={Ling, Yiran and Lian, Qing and Li, Jinghang and Jiang, Qing and Zhang, Tianming and Jiang, Xiaoke and Liu, Chuanxiu and Liu, Jie and Zhang, Lei},
+  journal={arXiv preprint arXiv:2605.13632},
+  year={2026}
+}
+```
 
 ## License
 
@@ -305,4 +304,4 @@ This repository currently carries the Apache 2.0 license in [LICENSE](LICENSE).
 
 ## Acknowledgements
 
-TODO: Credit upstream projects, datasets, and evaluation frameworks.
+Acknowledgements will be finalized with the release, including upstream model code, datasets, simulators, and evaluation frameworks used by GTA-VLA.

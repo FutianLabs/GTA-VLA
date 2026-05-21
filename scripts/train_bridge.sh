@@ -24,8 +24,6 @@ if [[ -z "$MLP_MPI_HOSTFILE" || -z "$MLP_WORKER_0_HOST" ]]; then
 else
     IS_MULTINODE=true
 fi
-export http_proxy=http://100.68.175.233:3128
-export https_proxy=http://100.68.175.233:3128
 # Determine log directory
 if [ $NUM_GPUS -le 1 ] && [ "$IS_MULTINODE" = false ]; then
     export WANDB_MODE=disabled

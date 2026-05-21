@@ -4,6 +4,7 @@ import os
 import pandas as pd
 from tqdm import tqdm
 import subprocess
+import tempfile
 import uuid
 import h5py
 import numpy as np
@@ -76,7 +77,8 @@ class VideoDataTSVWriter:
             """
             Judge if the video is encoded as H.264.
             If yes, return the original path.
-            If not, encode it to H.264 and save it to /dev/shm, return the temp path.
+            If not, encode it to H.264 and save it to a temporary directory,
+            return the temp path.
             The caller should delete the temp file after use.
             """
             # 1. 检查编码
@@ -97,8 +99,9 @@ class VideoDataTSVWriter:
             if codec.lower() == "h264":
                 return path_video, is_tmp_file  # 已经是 H.264
 
-            # 2. 生成 /dev/shm 临时文件路径
-            tmp_file_path = f"/dev/shm/{uuid.uuid4().hex}.mp4"  # TODO: make sure the server has this directory.
+            tmp_dir = os.getenv("GTA_VLA_TMPDIR") or tempfile.gettempdir()
+            os.makedirs(tmp_dir, exist_ok=True)
+            tmp_file_path = os.path.join(tmp_dir, f"{uuid.uuid4().hex}.mp4")
 
             try:
                 subprocess.run(["ffmpeg", "-i", path_video, "-c:v", "h264", tmp_file_path], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
