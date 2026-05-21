@@ -3,7 +3,7 @@ name = "gta-vla"
 version = "0.1.0"
 description = "Public-facing GTA-VLA repository skeleton"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.11"
 dependencies = [
     "absl-py==2.3.1",
     "accelerate==1.12.0",
@@ -197,7 +197,6 @@ dependencies = [
     "regex==2025.11.3",
     "requests==2.32.5",
     "requests-oauthlib==2.0.0",
-    "rerun-sdk==0.26.2",
     "rich==14.2.0",
     "robosuite==1.4.0",
     "rpds-py==0.29.0",
@@ -222,9 +221,6 @@ dependencies = [
     "tabulate==0.9.0",
     "tensorboard==2.18.0",
     "tensorboard-data-server==0.7.2",
-    "tensorflow==2.18.0",
-    "tensorflow-datasets==4.9.3",
-    "tensorflow-metadata==1.17.2",
     "termcolor==3.2.0",
     "timm==1.0.12",
     "tokenizers==0.22.1",
@@ -258,3 +254,6 @@ dependencies = [
     "yarl==1.22.0",
     "zipp==3.23.0",
 ]
+[tool.uv]
+environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'"]
+
