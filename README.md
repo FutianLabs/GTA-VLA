@@ -10,7 +10,7 @@ This repository provides the public code release for training, evaluation, metad
 - Project page: [GTA-VLA Project Page](https://signalispupupu.github.io/GTA-VLA_ProjPage/)
 - Checkpoints: [SignalIsPuPuPu/GTA-VLA](https://huggingface.co/SignalIsPuPuPu/GTA-VLA)
 
-The paper reports an 81.2% success rate on the in-domain SimplerEnv WidowX benchmark and shows that one-shot spatial guidance can improve recovery under visual shifts and spatial ambiguity.
+The paper reports an 81.2% success rate on the SimplerEnv WidowX benchmark and shows that one-shot spatial guidance can improve recovery under visual shifts and spatial ambiguity.
 
 ## Status
 
@@ -24,12 +24,6 @@ Current scope:
 - Configuration files
 - Metadata examples
 
-Not included in this repository:
-
-- Raw datasets
-- Experiment logs and local runtime artifacts
-- Simulator assets that must be installed from their upstream projects
-- Full installation and benchmark CI validation
 
 ## Repository Layout
 
