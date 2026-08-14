@@ -270,15 +270,6 @@ Notes:
 - the `eval/` subtree is created only after running evaluation
 - checkpoint discovery in `auto_eval_on_checkpoint.py` relies on the `ckpt-<step>` naming pattern
 
-## Known Limitations
-
-The current public export still has several limitations:
-
-- optional simulation evaluation dependencies in `requirements.txt` are documented as commented local editable installs and must be installed separately when needed
-- metadata examples under `data/` contain development-time dataset paths and are not drop-in runnable without path updates
-- some evaluation flows assume locally prepared simulator checkouts, benchmark assets, or connection files
-- end-to-end installation and benchmark CI validation are not included in this release snapshot
-
 ## Citation
 
 If you use GTA-VLA, please cite:
