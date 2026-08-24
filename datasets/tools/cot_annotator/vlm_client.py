@@ -21,12 +21,16 @@ class VLMGroundingClient:
                  model: str = "doubao-1.5-vision-pro-250328"):
         """
         Args:
-            api_key: Doubao API key (if None, uses env var ARK_API_KEY or default)
+            api_key: Doubao API key (if None, uses env var ARK_API_KEY)
             model: Model endpoint ID
         """
-        # Use provided api_key, or env var, or default
+        # Use the explicitly provided key or read it from the environment.
         if api_key is None:
-            api_key = os.getenv('ARK_API_KEY', 'REMOVED_ARK_API_KEY')
+            api_key = os.getenv("ARK_API_KEY")
+        if not api_key:
+            raise ValueError(
+                "A Doubao API key is required. Pass api_key or set ARK_API_KEY."
+            )
         
         self.api_key = api_key
         self.model = model
@@ -254,4 +258,3 @@ If the object is not found, output: <bbox>none</bbox>"""
                 pass
         
         return None
-

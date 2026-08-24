@@ -10,7 +10,7 @@
 #
 #   1. DINO-X (requires --dds_token):
 #      bash run_distributed.sh ../../data/bridge_meta.json ./cot_output_dinox dinox \
-#          --dds_token REMOVED_DDS_TOKEN
+#          --dds_token <token>
 #
 #   2. Rex-Omni (requires --model_path, optional --backend):
 #      bash run_distributed.sh ../../data/bridge_meta.json ./cot_output_rexomni rexomni \
@@ -22,15 +22,15 @@
 #
 #   3. Qwen3-VL-Flash (requires --api_key):
 #      bash run_distributed.sh ../../data/bridge_meta.json ./cot_output_qwen_flash qwen3-vl-flash \
-#          --api_key REMOVED_DASHSCOPE_API_KEY
+#          --api_key <key>
 #
 #   4. Qwen3-VL-Plus (requires --api_key):
 #      bash run_distributed.sh ../../data/bridge_meta.json ./cot_output_qwen_plus qwen3-vl-plus \
-#          --api_key REMOVED_DASHSCOPE_API_KEY
+#          --api_key <key>
 #
 #   5. Doubao VLM / Seed-VL-1.5 (requires --api_key):
 #      bash run_distributed.sh ../../data/bridge_meta.json ./cot_output_seedvl seed-vl-1.5 \
-#          --api_key REMOVED_ARK_API_KEY
+#          --api_key <key>
 #
 # The script will:
 #   1. Create logs directory
@@ -166,4 +166,3 @@ else
     exit 1
 fi
 echo "========================================================================"
-
